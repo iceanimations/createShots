@@ -20,12 +20,12 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Animation File</string>
+         <string>Mappings File</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="animFilePathBox"/>
+       <widget class="QLineEdit" name="mappingsFilePathBox"/>
       </item>
       <item>
        <widget class="QToolButton" name="browseButton1">
@@ -68,6 +68,9 @@
       </item>
       <item>
        <widget class="QTextEdit" name="statusBox">
+        <property name="lineWrapMode">
+         <enum>QTextEdit::NoWrap</enum>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>

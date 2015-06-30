@@ -10,10 +10,12 @@ import qtify_maya_window as qtfy
 import msgBox
 import backend
 reload(backend)
+import qutil
+reload(qutil)
 
 rcUtils = backend.rcUtils
 
-rootPath = osp.dirname(osp.dirname(__file__))
+rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
 
 Form, Base = uic.loadUiType(osp.join(uiPath, 'main.ui'))
@@ -55,22 +57,30 @@ class RenderCheckUI(Form, Base):
             self.deadlineSubmitter = None
         
     def start(self):
-        pass
+        mappingsFilePath = self.getMappingsFilePath()
+        if mappingsFilePath:
+            csvFilePath = self.getCSVFilePath()
+            if csvFilePath:
+                backend.DeadlineSubmitter(backend.SceneMaker(backend.DataCollector(mappingsFilePath,
+                                                                                   csvFilePath,
+                                                                                   parentWin=self).collect(),
+                                                             parentWin=self).make(),
+                                          parentWin=self).submit()
     
-    def setAnimationFilePath(self):
+    def setMappingsFilePath(self):
         filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.ma *.mb')
         if filename:
-            self.animFilePathBox.setText(filename)
+            self.mappingsFilePathBox.setText(filename)
     
     def setCSVFilePath(self):
         filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.csv')
         if filename:
             self.csvFilePathBox.setText(filename)
     
-    def getAnimationFilePath(self):
-        path = self.animFilePathBox.text()
+    def getMappingsFilePath(self):
+        path = self.mappingsFilePathBox.text()
         if not osp.exists(path):
-            self.showMessage(msg='Animation file path does not exist',
+            self.showMessage(msg='Mappings file path does not exist',
                              icon=QMessageBox.Information)
             path = ''
         return path
