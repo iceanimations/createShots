@@ -6,8 +6,16 @@ Created on Jun 26, 2015
 import qutil
 reload(qutil)
 import pymel.core as pc
-import os.path as osp
 import setupSaveScene
+reload(setupSaveScene)
+import os.path as osp
+import imaya as mi
+import rcUtils
+reload(rcUtils)
+import os
+import pprint
+
+homeDir = rcUtils.homeDir
 
 class SceneMaker(object):
     '''
@@ -19,38 +27,55 @@ class SceneMaker(object):
         @param parentWin: RenderCheckUI objec to update the ui  
         '''
         self.cacheLDMappings = dataCollector.cacheLDMappings
-        self.camera = dataCollector.camera # path to camera file
-        self.environment = dataCollector.environment # path to environment file
+        self.meshes = dataCollector.meshes
         self.parentWin = parentWin
+        self.shotsPath = parentWin.getShotsFilePath()
+        
+        pprint.pprint(self.cacheLDMappings)
         
     def updateUI(self, msg):
         if self.parentWin:
             self.parentWin.appendStatus(msg)
+            
+    def clearCaches(self):
+        for mesh in self.meshes:
+            if mesh.history(type='cacheFile'):
+                pc.select(mesh)
+                pc.mel.eval('deleteCacheFile 3 { "keep", "", "geometry" } ;')
 
     def make(self):
-        if self.cacheLDMappings and self.camera and self.environment:
-            self.updateUI('Starting scene making')
-            self.updateUI('referencing camera')
-            cameraRef = qutil.addRef(self.camera)
-            self.updateUI('referencing environment')
-            qutil.addRef(self.environment)
-            self.updateUI('referencing characters, props and vehicles and applying cache')
-            errors = qutil.applyCache(self.cacheLDMappings)
-            if errors:
-                for error in errors:
-                    self.updateUI(error)
-            camera = None
-            try:
-                camera = [node for node in cameraRef.nodes() if type(node) == pc.nt.Camera][0]
-            except IndexError:
-                self.updateUI('Could not find camera')
-            if camera:
-                errors = setupSaveScene.setupScene(msg=False, cam=camera)
-                if errors:
-                    for error in errors:
-                        self.updateUI(error)
-            self.updateUI('Applying new material to all meshes')
-            rscmd = 'createRenderNodeCB -asShader "surfaceShader" RedshiftArchitectural ""'
-            sg = pc.PyNode(pc.Mel.eval(rscmd)).outColor.outputs()[0]
-            pc.sets(sg, e=True, fe=pc.ls(type=pc.nt.Mesh))
+        if self.cacheLDMappings:
+            for phile in os.listdir(homeDir):
+                os.remove(osp.join(homeDir, phile))
+            self.updateUI('<b>Starting scene making</b>')
+            for shot in self.cacheLDMappings.keys():
+                self.clearCaches()
+                self.updateUI('Creating <b>%s</b>'%shot)
+                data = self.cacheLDMappings[shot]
+                self.updateUI('applying cache to objects')
+                for ld, cache in data[0].items():
+                    self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
+                    mi.applyCache(ld, cache)
+                cameraRef = None
+                if len(data) == 2:
+                    self.updateUI('adding camera %s'%osp.basename(data[-1]))
+                    cameraRef = qutil.addRef(data[-1])
+                    camera = None
+                    try:
+                        camera = [node for node in cameraRef.nodes() if type(node) == pc.nt.Camera][0]
+                    except IndexError:
+                        self.updateUI('Could not find camera in %s'%data[-1])
+                    if camera:
+                        errors = setupSaveScene.setupScene(msg=False, cam=camera)
+                        if errors:
+                            for error in errors:
+                                self.updateUI(error)
+                path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
+                try:
+                    self.updateUI('Saving shot as %s'%path)
+                    mi.saveSceneAs(path)
+                except Exception as ex:
+                    self.updateUI('Warning: '+ str(ex))
+                    self.updateUI('Saving shot to %s'%homeDir)
+                    rcUtils.saveScene(osp.basename(path))
         return self

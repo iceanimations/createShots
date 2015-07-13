@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>474</width>
-    <height>624</height>
+    <width>639</width>
+    <height>658</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,16 +37,16 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="shotsLayout">
       <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>CSV File         </string>
+         <string>Shots Dir</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="csvFilePathBox"/>
+       <widget class="QLineEdit" name="shotsFilePathBox"/>
       </item>
       <item>
        <widget class="QToolButton" name="browseButton2">
@@ -141,7 +141,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>474</width>
+     <width>639</width>
      <height>19</height>
     </rect>
    </property>

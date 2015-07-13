@@ -12,6 +12,10 @@ import backend
 reload(backend)
 import qutil
 reload(qutil)
+import os
+import re
+import cui
+reload(cui)
 
 rcUtils = backend.rcUtils
 
@@ -33,15 +37,42 @@ class RenderCheckUI(Form, Base):
         
         self.progressBar.hide()
         self.stopButton.hide()
+        self.label.hide()
+        self.mappingsFilePathBox.hide()
+        self.browseButton1.hide()
+        
+        self.shotsBox = cui.MultiSelectComboBox(self, msg='--Select Shots--')
+        self.shotsLayout.addWidget(self.shotsBox)
         
         self.startButton.clicked.connect(self.start)
-        self.browseButton1.clicked.connect(self.setAnimationFilePath)
-        self.browseButton2.clicked.connect(self.setCSVFilePath)
+        self.browseButton1.clicked.connect(self.setMappingsFilePath)
+        self.browseButton2.clicked.connect(self.setShotsFilePath)
         self.stopButton.clicked.connect(self.stop)
+        self.shotsFilePathBox.textChanged.connect(self.populateShots)
         
+    def isShotNameValid(self, name):
+        parts = name.split('_')
+        if len(parts) == 2:
+            if re.match('SQ\\d{3}', parts[0]) and re.match('SH\\d{3}', parts[1]):
+                return True
+        
+    def populateShots(self, path):
+        if path:
+            if osp.exists(path):
+                files = os.listdir(path)
+                if files:
+                    goodFiles = []
+                    for phile in files:
+                        if not self.isShotNameValid(phile):
+                            continue
+                        goodFiles.append(phile)
+                    self.shotsBox.addItems(goodFiles)
+                    return
+        self.shotsBox.clearItems()
+
     def closeEvent(self, event):
         self.deleteLater()
-        
+
     def processEvents(self):
         qApp.processEvents()
         
@@ -57,25 +88,25 @@ class RenderCheckUI(Form, Base):
             self.deadlineSubmitter = None
         
     def start(self):
-        mappingsFilePath = self.getMappingsFilePath()
-        if mappingsFilePath:
-            csvFilePath = self.getCSVFilePath()
-            if csvFilePath:
-                backend.DeadlineSubmitter(backend.SceneMaker(backend.DataCollector(mappingsFilePath,
-                                                                                   csvFilePath,
-                                                                                   parentWin=self).collect(),
-                                                             parentWin=self).make(),
-                                          parentWin=self).submit()
+        self.statusBox.clear()
+        shotsFilePath = self.getShotsFilePath()
+        if shotsFilePath:
+            selectedShots = self.shotsBox.getSelectedItems()
+            if not selectedShots:
+                selectedShots = self.shotsBox.getItems()
+            backend.SceneMaker(backend.DataCollector(shotsFilePath, selectedShots,
+                                                     parentWin=self).collect(),
+                               parentWin=self).make()
     
     def setMappingsFilePath(self):
-        filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.ma *.mb')
+        filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.txt')
         if filename:
             self.mappingsFilePathBox.setText(filename)
     
-    def setCSVFilePath(self):
-        filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.csv')
+    def setShotsFilePath(self):
+        filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
         if filename:
-            self.csvFilePathBox.setText(filename)
+            self.shotsFilePathBox.setText(filename)
     
     def getMappingsFilePath(self):
         path = self.mappingsFilePathBox.text()
@@ -85,15 +116,17 @@ class RenderCheckUI(Form, Base):
             path = ''
         return path
     
-    def getCSVFilePath(self):
-        path = self.csvFilePathBox.text()
+    def getShotsFilePath(self):
+        path = self.shotsFilePathBox.text()
         if not osp.exists(path):
-            self.showMessage(msg='CSV file path does not exist',
+            self.showMessage(msg='Shots path does not exist',
                              icon=QMessageBox.Information)
             path = ''
         return path
     
     def appendStatus(self, msg):
+        if 'Warning:' in msg:
+            msg = '<span style="color: orange;">'+ msg.replace('Warning:', '<b>Warning:</b>') + '<span>'
         self.statusBox.append(msg)
         self.processEvents()
         
@@ -121,4 +154,4 @@ class RenderCheckUI(Form, Base):
         self.statusBox.clear()
     
     def showMessage(self, **kwargs):
-        return msgBox.showMessage(self, title='Render Check', **kwargs)
+        return msgBox.showMessage(self, title='Create Shots', **kwargs)
