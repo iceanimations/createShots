@@ -79,4 +79,7 @@ class SceneMaker(object):
                     self.updateUI('Warning: '+ str(ex))
                     self.updateUI('Saving shot to %s'%homeDir)
                     rcUtils.saveScene(osp.basename(path))
+                if cameraRef:
+                    self.updateUI('Removing camera %s'%str(cameraRef.path))
+                    cameraRef.remove()
         return self
