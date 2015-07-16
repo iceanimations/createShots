@@ -40,6 +40,10 @@ class RenderCheckUI(Form, Base):
         self.label.hide()
         self.mappingsFilePathBox.hide()
         self.browseButton1.hide()
+        self.hideDetailsButton.hide()
+        #self.statusBox.hide()
+        self.statusLabel.hide()
+        self.showDetailsButton.hide()
         
         self.shotsBox = cui.MultiSelectComboBox(self, msg='--Select Shots--')
         self.shotsLayout.addWidget(self.shotsBox)
@@ -94,9 +98,12 @@ class RenderCheckUI(Form, Base):
             selectedShots = self.shotsBox.getSelectedItems()
             if not selectedShots:
                 selectedShots = self.shotsBox.getItems()
-            backend.SceneMaker(backend.DataCollector(shotsFilePath, selectedShots,
-                                                     parentWin=self).collect(),
-                               parentWin=self).make()
+            scene = backend.SceneMaker(backend.DataCollector(shotsFilePath, selectedShots,
+                                                             parentWin=self).collect(),
+                                       parentWin=self).make()
+            self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>')
+        self.appendStatus('DONE...')
+            
     
     def setMappingsFilePath(self):
         filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.txt')
@@ -128,6 +135,10 @@ class RenderCheckUI(Form, Base):
         if 'Warning:' in msg:
             msg = '<span style="color: orange;">'+ msg.replace('Warning:', '<b>Warning:</b>') + '<span>'
         self.statusBox.append(msg)
+        self.processEvents()
+        
+    def setStatus(self, msg):
+        self.statusLabel.setText(msg)
         self.processEvents()
         
     def showProgressBar(self):

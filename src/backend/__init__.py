@@ -1,9 +1,9 @@
 import dataCollector
-import deadlineSubmitter
+import collageMaker
 import rcUtils
 import sceneMaker
-map(lambda m: reload(m), [dataCollector, deadlineSubmitter,
+map(lambda m: reload(m), [dataCollector, collageMaker,
                           rcUtils, sceneMaker])
 DataCollector = dataCollector.DataCollector
-DeadlineSubmitter = deadlineSubmitter.DeadlineSubmitter
+CollageMaker = collageMaker.CollageMaker
 SceneMaker = sceneMaker.SceneMaker

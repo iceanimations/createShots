@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>639</width>
-    <height>658</height>
+    <height>439</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,6 +58,13 @@
      </layout>
     </item>
     <item>
+     <widget class="QLabel" name="statusLabel">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QProgressBar" name="progressBar">
@@ -65,6 +72,49 @@
          <number>24</number>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="showDetailsButton">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Show Details</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="hideDetailsButton">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Hide Details</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QTextEdit" name="statusBox">
@@ -156,12 +206,108 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>417</x>
-     <y>608</y>
+     <x>628</x>
+     <y>642</y>
     </hint>
     <hint type="destinationlabel">
      <x>159</x>
      <y>601</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showDetailsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>statusBox</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>59</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>94</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hideDetailsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>statusBox</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hideDetailsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>showDetailsButton</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>106</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>52</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showDetailsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>hideDetailsButton</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>30</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showDetailsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>showDetailsButton</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>17</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>24</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hideDetailsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>hideDetailsButton</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>151</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>152</y>
     </hint>
    </hints>
   </connection>

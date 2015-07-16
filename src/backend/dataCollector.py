@@ -67,7 +67,7 @@ class DataCollector(object):
         else:
             self.updateUI('Warning: Props node not found in the scene')
         self.updateUI('Collecting characters')
-        characters = pc.ls('character')
+        characters = pc.ls('characters')
         if characters:
             if len(characters) > 1:
                 charNode = None

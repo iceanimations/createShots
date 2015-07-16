@@ -13,7 +13,9 @@ import imaya as mi
 import rcUtils
 reload(rcUtils)
 import os
-import pprint
+import collageMaker
+reload(collageMaker)
+
 
 homeDir = rcUtils.homeDir
 
@@ -30,8 +32,8 @@ class SceneMaker(object):
         self.meshes = dataCollector.meshes
         self.parentWin = parentWin
         self.shotsPath = parentWin.getShotsFilePath()
-        
-        pprint.pprint(self.cacheLDMappings)
+        self.collageMaker = collageMaker.CollageMaker(self.parentWin)
+        self.collage = None
         
     def updateUI(self, msg):
         if self.parentWin:
@@ -46,7 +48,15 @@ class SceneMaker(object):
     def make(self):
         if self.cacheLDMappings:
             for phile in os.listdir(homeDir):
-                os.remove(osp.join(homeDir, phile))
+                path = osp.join(homeDir, phile)
+                if osp.isfile(path):
+                    os.remove(osp.join(homeDir, phile))
+                else:
+                    if phile == 'incrementalSave':
+                        continue
+                    for phile2 in os.listdir(path):
+                        path2 = osp.join(path, phile2)
+                        os.remove(path2)
             self.updateUI('<b>Starting scene making</b>')
             for shot in self.cacheLDMappings.keys():
                 self.clearCaches()
@@ -66,6 +76,7 @@ class SceneMaker(object):
                     except IndexError:
                         self.updateUI('Could not find camera in %s'%data[-1])
                     if camera:
+                        pc.lookThru(camera)
                         errors = setupSaveScene.setupScene(msg=False, cam=camera)
                         if errors:
                             for error in errors:
@@ -79,7 +90,9 @@ class SceneMaker(object):
                     self.updateUI('Warning: '+ str(ex))
                     self.updateUI('Saving shot to %s'%homeDir)
                     rcUtils.saveScene(osp.basename(path))
+                self.collageMaker.makeShot(shot)
                 if cameraRef:
                     self.updateUI('Removing camera %s'%str(cameraRef.path))
                     cameraRef.remove()
+            self.collage = self.collageMaker.make()
         return self
