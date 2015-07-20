@@ -1,5 +1,5 @@
-import src.renderCheckUI as rcui
+import src.createShotsUI as rcui
 reload(rcui)
-Window = rcui.RenderCheckUI
+Window = rcui.CreateShotsUI
 import src.backend as backend
 reload(backend)

@@ -4,7 +4,7 @@ Created on Jun 26, 2015
 @author: qurban.ali
 '''
 from uiContainer import uic
-from PyQt4.QtGui import QMessageBox, QFileDialog, qApp
+from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, qApp
 import os.path as osp
 import qtify_maya_window as qtfy
 import msgBox
@@ -16,6 +16,9 @@ import os
 import re
 import cui
 reload(cui)
+import mappingUI as mUI
+reload(mUI)
+import pprint
 
 rcUtils = backend.rcUtils
 
@@ -23,12 +26,12 @@ rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
 
 Form, Base = uic.loadUiType(osp.join(uiPath, 'main.ui'))
-class RenderCheckUI(Form, Base):
+class CreateShotsUI(Form, Base):
     '''
     Takes input from the user for scene creation
     '''
     def __init__(self, parent=qtfy.getMayaWindow()):
-        super(RenderCheckUI, self).__init__(parent)
+        super(CreateShotsUI, self).__init__(parent)
         self.setupUi(self)
         
         self.dataCollector = None
@@ -98,10 +101,27 @@ class RenderCheckUI(Form, Base):
             selectedShots = self.shotsBox.getSelectedItems()
             if not selectedShots:
                 selectedShots = self.shotsBox.getItems()
-            scene = backend.SceneMaker(backend.DataCollector(shotsFilePath, selectedShots,
-                                                             parentWin=self).collect(),
-                                       parentWin=self).make()
-            self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>')
+            data = backend.DataCollector(shotsFilePath, selectedShots, parentWin=self).collect()
+            mappingUI = mUI.MappingUI(self, data).populate()
+            if mappingUI.exec_():
+                mappings = mappingUI.getMappings()
+            else:
+                return
+            for key, value in mappings.items():
+                data.cacheLDMappings[key][0] = value
+            scene = backend.SceneMaker(data, parentWin=self).make()
+            fileButton = QPushButton('Copy File Path')
+            folderButton = QPushButton('Copy Folder Path')
+            btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',
+                                   btns=QMessageBox.Ok,
+                                   customButtons=[fileButton, folderButton],
+                                   icon=QMessageBox.Information)
+            if btn == fileButton:
+                qApp.clipboard().setText(scene.collage)
+            elif btn == folderButton:
+                qApp.clipboard().setText(osp.dirname(scene.collage))
+            else:
+                pass
         self.appendStatus('DONE...')
             
     

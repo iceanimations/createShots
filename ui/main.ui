@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>639</width>
-    <height>439</height>
+    <width>867</width>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Render Check</string>
+   <string>Create Shots</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -191,7 +191,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>639</width>
+     <width>867</width>
      <height>19</height>
     </rect>
    </property>

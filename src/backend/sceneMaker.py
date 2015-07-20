@@ -63,9 +63,10 @@ class SceneMaker(object):
                 self.updateUI('Creating <b>%s</b>'%shot)
                 data = self.cacheLDMappings[shot]
                 self.updateUI('applying cache to objects')
-                for ld, cache in data[0].items():
-                    self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
-                    mi.applyCache(ld, cache)
+                for cache, ld in data[0].items():
+                    if ld:
+                        self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
+                        mi.applyCache(ld, cache)
                 cameraRef = None
                 if len(data) == 2:
                     self.updateUI('adding camera %s'%osp.basename(data[-1]))

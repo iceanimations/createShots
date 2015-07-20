@@ -12,6 +12,9 @@ import os.path as osp
 import os
 import cui
 reload(cui)
+import re
+import rcUtils
+reload(rcUtils)
 
 
 class DataCollector(object):
@@ -96,8 +99,11 @@ class DataCollector(object):
             else:
                 break
         return count
-            
-            
+    
+    def matchStrings2(self, l1, l2):
+        return len(set(l1) & set(l2))
+    
+
     def getMeshFromCacheName(self, cacheName, mappedMeshes):
         newCacheName = cacheName.replace('_geo', '_shaded').replace('_set', '_combined')
         meshNames = {mesh: qutil.getNiceName(mesh.name()) for mesh in self.meshes}
@@ -105,6 +111,21 @@ class DataCollector(object):
         match = None
         for mesh, meshName in meshNames.items():
             newCount = self.matchStrings(newCacheName, meshName)
+            if newCount > count and mesh not in mappedMeshes:
+                match = mesh
+                count = newCount
+        #return match
+        return None
+    
+    def getMeshFromCacheName2(self, cacheName, mappedMeshes):
+        newCacheName = cacheName.replace('_geo', '').replace('_set', '')
+        newCacheName = re.split('[_:|]', newCacheName)
+        newCacheName = [x.lower() for x in newCacheName]
+        meshNames = {mesh: mesh.name() for mesh in self.meshes}
+        count = 0
+        match = None
+        for mesh, meshName in meshNames.items():
+            newCount = self.matchStrings2(newCacheName, [x.lower() for x in re.split('[_:|]', meshName)])
             if newCount > count and mesh not in mappedMeshes:
                 match = mesh
                 count = newCount
@@ -151,18 +172,22 @@ class DataCollector(object):
                     continue
                 self.updateUI('Finding meshes for cache files in %s'%shot)
                 cacheMeshMappings = {}
+                cacheFiles = sorted(cacheFiles, key=len)
+                cacheFiles.reverse()
                 for cacheFile in cacheFiles:
-                    mesh = self.getMeshFromCacheName(cacheFile, cacheMeshMappings.keys())
-                    #print cacheFile +' >> '+ mesh
+                    #mesh = self.getMeshFromCacheName(cacheFile, cacheMeshMappings.values())
+                    #if not mesh:
+                    
+                    mesh = self.getMeshFromCacheName2(cacheFile, cacheMeshMappings.values())
                     if not mesh:
                         self.updateUI('Warning: Could not find a mesh for %s in %s'%(cacheFile, shot))
-                        continue
-                    self.updateUI('Found: %s for %s'%(mesh.name(), cacheFile))
-                    cacheMeshMappings[mesh] = osp.join(cachePath, cacheFile)
+                    if mesh:
+                        self.updateUI('Found: %s for %s'%(mesh.name(), cacheFile))
+                    cacheMeshMappings[rcUtils.getNicePath(osp.join(cachePath, cacheFile))] = mesh
                 camera = self.getCameraFile(cameraPath)
                 if not camera:
                     self.updateUI('Warning: Could find camera file for %s'%shot)
-                self.cacheLDMappings[shot] = (cacheMeshMappings, camera)
+                self.cacheLDMappings[shot] = [cacheMeshMappings, camera]
         else:
             self.updateUI('Warning: Could not find shots in %s'%self.shotsPath)
         return self

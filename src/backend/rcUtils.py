@@ -23,3 +23,6 @@ def removeCameraRef():
         if rf:
             if pc.nt.Camera in [type(node) for node in rf.nodes()]:
                 rf.remove()
+                
+def getNicePath(path):
+    return osp.normcase(osp.normpath(path))
