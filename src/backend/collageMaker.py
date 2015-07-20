@@ -5,7 +5,10 @@ Created on Jul 14, 2015
 '''
 import imaya
 reload(imaya)
-import iutilities as iutil
+try:
+    import iutilities as iutil
+except:
+    import iutil
 reload(iutil)
 import subprocess
 import os
