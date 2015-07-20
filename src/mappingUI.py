@@ -35,7 +35,9 @@ class MappingUI(Form, Base):
         super(MappingUI, self).__init__(parent)
         self.setupUi(self)
         self.data = data
-        self.mappings = data.cacheLDMappings
+        self.mappings = OrderedDict()
+        for key in sorted(data.cacheLDMappings):
+            self.mappings[key] = data.cacheLDMappings[key]
         self.items = []
         
         self.okButton.clicked.connect(lambda: self.accept())

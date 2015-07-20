@@ -66,7 +66,10 @@ class SceneMaker(object):
                 for cache, ld in data[0].items():
                     if ld:
                         self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
-                        mi.applyCache(ld, cache)
+                        try:
+                            mi.applyCache(ld, cache)
+                        except Exception as ex:
+                            self.updateUI('Warning: Could not apply cache to %s, %s'%(ld.name(), str(ex)))
                 cameraRef = None
                 if len(data) == 2:
                     self.updateUI('adding camera %s'%osp.basename(data[-1]))
@@ -75,7 +78,7 @@ class SceneMaker(object):
                     try:
                         camera = [node for node in cameraRef.nodes() if type(node) == pc.nt.Camera][0]
                     except IndexError:
-                        self.updateUI('Could not find camera in %s'%data[-1])
+                        self.updateUI('Warning: Could not find camera in %s'%data[-1])
                     if camera:
                         pc.lookThru(camera)
                         errors = setupSaveScene.setupScene(msg=False, cam=camera)
