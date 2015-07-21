@@ -51,6 +51,9 @@
        <height>10</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>Remove file</string>
+     </property>
      <property name="text">
       <string>TextLabel</string>
      </property>
@@ -58,6 +61,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="ldBox">
+     <property name="toolTip">
+      <string>Select a mesh to apply corresponding cache file</string>
+     </property>
      <item>
       <property name="text">
        <string/>

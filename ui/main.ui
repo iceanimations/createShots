@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
+    <width>642</width>
     <height>585</height>
    </rect>
   </property>
@@ -15,27 +15,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Mappings File</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="mappingsFilePathBox"/>
-      </item>
-      <item>
-       <widget class="QToolButton" name="browseButton1">
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item>
      <layout class="QHBoxLayout" name="shotsLayout">
       <item>
@@ -46,10 +25,17 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="shotsFilePathBox"/>
+       <widget class="QLineEdit" name="shotsFilePathBox">
+        <property name="toolTip">
+         <string>Add sequence directory</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QToolButton" name="browseButton2">
+        <property name="toolTip">
+         <string>Browse for directory</string>
+        </property>
         <property name="text">
          <string>...</string>
         </property>
@@ -191,7 +177,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>867</width>
+     <width>642</width>
      <height>19</height>
     </rect>
    </property>

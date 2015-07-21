@@ -69,6 +69,7 @@ class MappingUI(Form, Base):
                         itm.removeLabel.show()
                         itm.ldBox.hide()
                         itm.fileLabel.setText(osp.basename(filePath))
+                        itm.setToolTip(osp.normpath(filePath))
     
     def hideFileName(self, cache):
         if self.isToggleAll():
@@ -193,10 +194,25 @@ class Mapping(Form3, Base3):
         self.browseButton.clicked.connect(self.browseFileDialog)
         
     def showFileName(self):
-        self.parentWin.showFileName(self.filePath, self.getCache())
+        if self.parentWin.isToggleAll():
+            self.parentWin.showFileName(self.filePath, self.getCache())
+        else:
+            self.filePath = self.filePath
+            self.fileLabel.show()
+            self.removeLabel.show()
+            self.ldBox.hide()
+            self.fileLabel.setText(osp.basename(self.filePath))
+            self.fileLabel.setToolTip(osp.normpath(self.filePath))
     
     def hideFileName(self, event=None):
-        self.parentWin.hideFileName(self.getCache())
+        if self.parentWin.isToggleAll():
+            self.parentWin.hideFileName(self.getCache())
+        else:
+            self.filePath = None
+            self.fileLabel.hide()
+            self.removeLabel.hide()
+            self.ldBox.show()
+            self.fileLabel.setText('')
         if event: event.accept()
         
     def browseFileDialog(self):

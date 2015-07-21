@@ -19,6 +19,8 @@ reload(cui)
 import mappingUI as mUI
 reload(mUI)
 import pprint
+import appUsageApp
+reload(appUsageApp)
 
 rcUtils = backend.rcUtils
 
@@ -40,11 +42,7 @@ class CreateShotsUI(Form, Base):
         
         self.progressBar.hide()
         self.stopButton.hide()
-        self.label.hide()
-        self.mappingsFilePathBox.hide()
-        self.browseButton1.hide()
         self.hideDetailsButton.hide()
-        #self.statusBox.hide()
         self.statusLabel.hide()
         self.showDetailsButton.hide()
         
@@ -52,10 +50,11 @@ class CreateShotsUI(Form, Base):
         self.shotsLayout.addWidget(self.shotsBox)
         
         self.startButton.clicked.connect(self.start)
-        self.browseButton1.clicked.connect(self.setMappingsFilePath)
         self.browseButton2.clicked.connect(self.setShotsFilePath)
         self.stopButton.clicked.connect(self.stop)
         self.shotsFilePathBox.textChanged.connect(self.populateShots)
+        
+        appUsageApp.updateDatabase('createShots')
         
     def isShotNameValid(self, name):
         parts = name.split('_')
@@ -123,25 +122,11 @@ class CreateShotsUI(Form, Base):
             else:
                 pass
         self.appendStatus('DONE...')
-            
-    
-    def setMappingsFilePath(self):
-        filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.txt')
-        if filename:
-            self.mappingsFilePathBox.setText(filename)
     
     def setShotsFilePath(self):
         filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
         if filename:
             self.shotsFilePathBox.setText(filename)
-    
-    def getMappingsFilePath(self):
-        path = self.mappingsFilePathBox.text()
-        if not osp.exists(path):
-            self.showMessage(msg='Mappings file path does not exist',
-                             icon=QMessageBox.Information)
-            path = ''
-        return path
     
     def getShotsFilePath(self):
         path = self.shotsFilePathBox.text()
