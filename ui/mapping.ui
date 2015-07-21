@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>189</width>
+    <width>365</width>
     <height>41</height>
    </rect>
   </property>
@@ -28,12 +28,48 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="fileLabel">
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="removeLabel">
+     <property name="minimumSize">
+      <size>
+       <width>10</width>
+       <height>10</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>10</width>
+       <height>10</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QComboBox" name="ldBox">
      <item>
       <property name="text">
        <string/>
       </property>
      </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="browseButton">
+     <property name="toolTip">
+      <string>Add a reference to the mesh file for this cache</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
     </widget>
    </item>
   </layout>

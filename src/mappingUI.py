@@ -151,7 +151,14 @@ class Mapping(Form3, Base3):
         self.currentLD = currentLD
         self.parentWin = parent
         
+        self.removeLabel.hide()
+        self.fileLabel.hide()
+        self.browseButton.hide()
+        
         self.ldBox.activated[str].connect(self.activated)
+        
+    def browseFileDialog(self):
+        pass
         
     def activated(self, text):
         self.parentWin.activated(self.getCache(), text)

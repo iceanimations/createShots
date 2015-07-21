@@ -54,6 +54,13 @@ class CollageMaker(object):
         subprocess.call(command, shell=True)
             
     def snapshot(self):
+        try:
+            node = pc.PyNode('defaultResolution')
+        except:
+            node = None
+        if node:
+            width = node.width.get()/4; height = node.height.get()/4
+            return imaya.snapshot([width, height])
         return imaya.snapshot()
         
     def render(self, directory, filename):
