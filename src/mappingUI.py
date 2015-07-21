@@ -4,7 +4,7 @@ Created on Jul 17, 2015
 @author: qurban.ali
 '''
 from uiContainer import uic
-from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, qApp
+from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, qApp, QPixmap
 import os.path as osp
 import qtify_maya_window as qtfy
 import msgBox
@@ -34,6 +34,7 @@ class MappingUI(Form, Base):
     def __init__(self, parent=None, data=None):
         super(MappingUI, self).__init__(parent)
         self.setupUi(self)
+        self.parentWin = parent
         self.data = data
         self.mappings = OrderedDict()
         for key in sorted(data.cacheLDMappings):
@@ -43,12 +44,41 @@ class MappingUI(Form, Base):
         self.okButton.clicked.connect(lambda: self.accept())
         self.cancelButton.clicked.connect(lambda: self.reject())
         
+    def updateUI(self, msg):
+        if self.parentWin:
+            self.parentWin.appendStatus(msg)
+        
+    def isToggleAll(self):
+        return self.toggleAllButton.isChecked()
+        
     def activated(self, cache, ld):
-        if self.toggleAllButton.isChecked():
+        if self.isToggleAll():
             for item in self.items:
                 for itm in item.getItems():
                     if osp.basename(itm.getCache()).lower() == osp.basename(cache).lower():
                         itm.setLDs(ld, add=False)
+                        
+    def showFileName(self, filePath, cache):
+        if self.isToggleAll():
+            for item in self.items:
+                for itm in item.getItems():
+                    if osp.basename(itm.getCache()).lower() == osp.basename(cache).lower():
+                        itm.filePath = filePath
+                        itm.fileLabel.show()
+                        itm.removeLabel.show()
+                        itm.ldBox.hide()
+                        itm.fileLabel.setText(osp.basename(filePath))
+    
+    def hideFileName(self, cache):
+        if self.isToggleAll():
+            for item in self.items:
+                for itm in item.getItems():
+                    if osp.basename(itm.getCache()).lower() == osp.basename(cache).lower():
+                        itm.filePath = None
+                        itm.removeLabel.hide()
+                        itm.fileLabel.hide()
+                        itm.fileLabel.setText('')
+                        itm.ldBox.show()
         
     def populate(self):
         if self.mappings:
@@ -111,7 +141,7 @@ class Item(Form2, Base2):
     def getMappings(self):
         mappings = {}
         for item in self.items:
-            mappings[rcUtils.getNicePath(item.getCache())] = item.getLD()
+            mappings[item.getCache()] = item.getLD()
         return mappings
 
     def collapse(self, event=None):
@@ -149,16 +179,29 @@ class Mapping(Form3, Base3):
         self.basePath = osp.dirname(cache)
         self.lds = lds
         self.currentLD = currentLD
+        self.filePath = None
         self.parentWin = parent
-        
+
+        self.removeLabel.setPixmap(QPixmap(osp.join(iconPath, 'ic_remove.png')))
         self.removeLabel.hide()
         self.fileLabel.hide()
-        self.browseButton.hide()
         
         self.ldBox.activated[str].connect(self.activated)
+        self.removeLabel.mouseReleaseEvent = self.hideFileName
+        self.browseButton.clicked.connect(self.browseFileDialog)
+        
+    def showFileName(self):
+        self.parentWin.showFileName(self.filePath, self.getCache())
+    
+    def hideFileName(self, event=None):
+        self.parentWin.hideFileName(self.getCache())
+        if event: event.accept()
         
     def browseFileDialog(self):
-        pass
+        filename = QFileDialog.getOpenFileName(self, 'Select LD', '', '*.mb *.ma')
+        if filename:
+            self.filePath = filename
+            self.showFileName()
         
     def activated(self, text):
         self.parentWin.activated(self.getCache(), text)
@@ -190,8 +233,34 @@ class Mapping(Form3, Base3):
     def getCache(self):
         return osp.join(self.basePath, self.cacheLabel.text())
     
+    def updateUI(self, msg):
+        if self.parentWin:
+            self.parentWin.updateUI(msg)
+            
+    def addRef(self, path):
+        for ref in  qutil.getReferences():
+            if osp.normcase(osp.normpath(str(ref.path))) == osp.normcase(osp.normpath(path)):
+                return ref
+        return qutil.addRef(path)
+    
     def getLD(self):
-        node = self.ldBox.currentText()
-        if node:
-            return pc.PyNode(node)
-        return ''
+        if self.filePath:
+            self.updateUI('Adding reference: %s'%self.filePath)
+            ref = self.addRef(self.filePath)
+            if ref:
+                meshes = qutil.getCombinedMesh(ref)
+                if not meshes:
+                    self.updateUI('Warning: No meshes found in %s'%self.filePath)
+                    return ''
+                if len(meshes) > 1:
+                    self.updateUI('Warning: More than one meshes found in %s'%self.filePath)
+                    return ''
+                return meshes[0]
+            else:
+                self.updateUI('Could not add reference: %s'%self.filePath)
+                return
+        else:
+            node = self.ldBox.currentText()
+            if node:
+                return pc.PyNode(node)
+            return ''
