@@ -85,7 +85,8 @@ class MappingUI(Form, Base):
             lds = self.data.meshes #list(set([val for mapping in self.mappings.values() for val in mapping[0].values()]))
             for key, value in self.mappings.items():
                 item = Item(self, value[0], lds).update()
-                item.setTitle(key)
+                item.setTitle(key +' ('+ str(len(item.getItems())) +')')
+                
                 self.items.append(item)
                 self.itemLayout.addWidget(item)
         return self
@@ -164,7 +165,7 @@ class Item(Form2, Base2):
         self.nameLabel.setText(title)
 
     def getTitle(self):
-        return str(self.nameLabel.text())
+        return str(self.nameLabel.text().split()[0])
 
     def mouseReleaseEvent(self, event):
         pass
