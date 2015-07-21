@@ -40,6 +40,7 @@ class MappingUI(Form, Base):
         for key in sorted(data.cacheLDMappings):
             self.mappings[key] = data.cacheLDMappings[key]
         self.items = []
+        self.lastPath = ''
         
         self.okButton.clicked.connect(lambda: self.accept())
         self.cancelButton.clicked.connect(lambda: self.reject())
@@ -199,8 +200,9 @@ class Mapping(Form3, Base3):
         if event: event.accept()
         
     def browseFileDialog(self):
-        filename = QFileDialog.getOpenFileName(self, 'Select LD', '', '*.mb *.ma')
+        filename = QFileDialog.getOpenFileName(self, 'Select LD', osp.normpath(osp.dirname(self.parentWin.lastPath)), '*.mb *.ma')
         if filename:
+            self.parentWin.lastPath = filename
             self.filePath = filename
             self.showFileName()
         
