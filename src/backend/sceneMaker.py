@@ -88,8 +88,8 @@ class SceneMaker(object):
                 path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
                 try:
                     self.updateUI('Saving shot as %s'%path)
-                    if os.environ['USERNAME'] == 'qurban.ali':
-                        raise RuntimeError, 'No error, just bypassed the file saving in P drive'
+                    if os.environ['USERNAME'] == 'qurban.ali' or self.saveToLocalButton.isChecked():
+                        raise RuntimeError, 'No warning, just bypassed the file saving in P drive'
                     mi.saveSceneAs(path)
                 except Exception as ex:
                     self.updateUI('Warning: '+ str(ex))
