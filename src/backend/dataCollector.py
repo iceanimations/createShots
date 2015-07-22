@@ -155,6 +155,7 @@ class DataCollector(object):
         else:
             if len(files) > 1:
                 sBox = cui.SelectionBox(self.parentWin, [QRadioButton(phile) for phile in files], 'More than one camera fils found in %s, please select one'%path)
+                sBox.setCancelToolTip('Skip adding the camera')
                 sBox.exec_()
                 try:
                     phile = sBox.getSelectedItems()[0]
