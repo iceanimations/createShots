@@ -7,6 +7,7 @@ from PyQt4.QtGui import QRadioButton
 import maya.cmds as cmds
 import pymel.core as pc
 import qutil
+from pymel.core.general import MayaNodeError
 reload(qutil)
 import os.path as osp
 import os
@@ -53,14 +54,20 @@ class DataCollector(object):
         props = pc.ls('props')
         self.updateUI('Collecting props')
         if props:
+            propNode = None
             if len(props) > 1:
-                propNode = None
                 for prop in props:
                     if prop.name().lower() == 'props' or prop.name().lower() == '|props':
-                        propNode = prop
-                        break
+                        try:
+                            prop.firstParent()
+                        except MayaNodeError:
+                            propNode = prop
+                            break
             else:
-                propNode = props[0]
+                try:
+                    props[0].firstParent()
+                except MayaNodeError:
+                    propNode = props[0]
             if not propNode:
                 self.updateUI('Warning: Could not find Prop node in the scene')
             else:
@@ -72,14 +79,20 @@ class DataCollector(object):
         self.updateUI('Collecting characters')
         characters = pc.ls('characters')
         if characters:
+            charNode = None
             if len(characters) > 1:
-                charNode = None
                 for char in characters:
                     if char.name().lower() == 'character' or char.name().lower() == '|character' or char.name().lower() == 'characters' or char.name().lower() == '|characters':
-                        charNode = char
-                        break
+                        try:
+                            char.firstParent()
+                        except MayaNodeError:
+                            charNode = char
+                            break
             else:
-                charNode = characters[0]
+                try:
+                    characters[0].firstParent()
+                except MayaNodeError:
+                    charNode = characters[0]
             if not charNode:
                 self.updateUI('Warning: Could not find character node in the scene')
             else:
@@ -141,7 +154,7 @@ class DataCollector(object):
             self.updateUI('Warning: Camera file not found in %s'%path)
         else:
             if len(files) > 1:
-                sBox = cui.SelectionBox(self, [QRadioButton(phile) for phile in files], 'More than one camera fils found in %s, please select one'%path)
+                sBox = cui.SelectionBox(self.parentWin, [QRadioButton(phile) for phile in files], 'More than one camera fils found in %s, please select one'%path)
                 sBox.exec_()
                 try:
                     phile = sBox.getSelectedItems()[0]
@@ -175,15 +188,12 @@ class DataCollector(object):
                 cacheFiles = sorted(cacheFiles, key=len)
                 cacheFiles.reverse()
                 for cacheFile in cacheFiles:
-                    #mesh = self.getMeshFromCacheName(cacheFile, cacheMeshMappings.values())
-                    #if not mesh:
-                    
                     mesh = self.getMeshFromCacheName2(cacheFile, cacheMeshMappings.values())
                     if not mesh:
                         self.updateUI('Warning: Could not find a mesh for %s in %s'%(cacheFile, shot))
                     if mesh:
                         self.updateUI('Found: %s for %s'%(mesh.name(), cacheFile))
-                    cacheMeshMappings[rcUtils.getNicePath(osp.join(cachePath, cacheFile))] = mesh
+                    cacheMeshMappings[osp.join(cachePath, cacheFile)] = mesh
                 camera = self.getCameraFile(cameraPath)
                 if not camera:
                     self.updateUI('Warning: Could find camera file for %s'%shot)

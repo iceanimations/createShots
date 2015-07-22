@@ -84,7 +84,7 @@ class MappingUI(Form, Base):
         
     def populate(self):
         if self.mappings:
-            lds = self.data.meshes #list(set([val for mapping in self.mappings.values() for val in mapping[0].values()]))
+            lds = self.data.meshes
             for key, value in self.mappings.items():
                 item = Item(self, value[0], lds).update()
                 item.setTitle(key +' ('+ str(len(item.getItems())) +')')
@@ -226,8 +226,9 @@ class Mapping(Form3, Base3):
         self.parentWin.activated(self.getCache(), text)
 
     def update(self):
-        if self.cache and self.lds:
+        if self.cache:
             self.setCache(self.cache)
+        if self.lds:
             self.setLDs(self.currentLD)
         return self
             

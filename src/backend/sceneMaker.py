@@ -58,7 +58,10 @@ class SceneMaker(object):
                         path2 = osp.join(path, phile2)
                         os.remove(path2)
             self.updateUI('<b>Starting scene making</b>')
+            count = 1
+            shotLen = len(self.cacheLDMappings.keys())
             for shot in self.cacheLDMappings.keys():
+                self.parentWin.setStatus('Creating %s of %s'%(count, shotLen))
                 self.clearCaches()
                 self.updateUI('Creating <b>%s</b>'%shot)
                 data = self.cacheLDMappings[shot]
@@ -88,7 +91,7 @@ class SceneMaker(object):
                 path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
                 try:
                     self.updateUI('Saving shot as %s'%path)
-                    if os.environ['USERNAME'] == 'qurban.ali' or self.saveToLocalButton.isChecked():
+                    if os.environ['USERNAME'] == 'qurban.ali' or self.parentWin.saveToLocalButton.isChecked():
                         raise RuntimeError, 'No warning, just bypassed the file saving in P drive'
                     mi.saveSceneAs(path)
                 except Exception as ex:
@@ -99,5 +102,7 @@ class SceneMaker(object):
                 if cameraRef:
                     self.updateUI('Removing camera %s'%str(cameraRef.path))
                     cameraRef.remove()
+                count += 1
+            self.parentWin.setStatus('')
             self.collage = self.collageMaker.make()
         return self

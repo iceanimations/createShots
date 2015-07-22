@@ -43,7 +43,6 @@ class CreateShotsUI(Form, Base):
         self.progressBar.hide()
         self.stopButton.hide()
         self.hideDetailsButton.hide()
-        self.statusLabel.hide()
         self.showDetailsButton.hide()
         
         self.shotsBox = cui.MultiSelectComboBox(self, msg='--Select Shots--')
@@ -122,12 +121,12 @@ class CreateShotsUI(Form, Base):
             else:
                 pass
         self.appendStatus('DONE...')
-    
+
     def setShotsFilePath(self):
         filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
         if filename:
             self.shotsFilePathBox.setText(filename)
-    
+
     def getShotsFilePath(self):
         path = self.shotsFilePathBox.text()
         if not osp.exists(path):
@@ -135,7 +134,7 @@ class CreateShotsUI(Form, Base):
                              icon=QMessageBox.Information)
             path = ''
         return path
-    
+
     def appendStatus(self, msg):
         if 'Warning:' in msg:
             msg = '<span style="color: orange;">'+ msg.replace('Warning:', '<b>Warning:</b>') + '<span>'
@@ -149,6 +148,8 @@ class CreateShotsUI(Form, Base):
     def showProgressBar(self):
         self.progressBar.show()
         self.progressBar.setValue(0)
+        self.pbSetMin(0)
+        self.statusBox.setFocus()
         self.processEvents()
         
     def pbSetMax(self, val):
@@ -157,7 +158,7 @@ class CreateShotsUI(Form, Base):
     def pbSetMin(self, val):
         self.progressBar.setMinimum(val)
         
-    def updateProgressBar(self, val):
+    def pbSetVal(self, val):
         self.progressBar.setValue(val)
         self.processEvents()
     
