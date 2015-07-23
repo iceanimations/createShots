@@ -16,6 +16,8 @@ reload(cui)
 import re
 import rcUtils
 reload(rcUtils)
+import imaya
+reload(imaya)
 
 
 class DataCollector(object):
@@ -41,6 +43,7 @@ class DataCollector(object):
         self.meshes = []
         
         self.cacheLDMappings = {}
+        self.renderLayers = {}
         self.camera = None
         self.environments = []
         
@@ -164,6 +167,10 @@ class DataCollector(object):
                     pass
             else:
                 return osp.join(path, files[0])
+            
+    def collectRenderLayers(self):
+        for layer in imaya.getRenderLayers(renderableOnly=False):
+            self.renderLayers[layer] = layer.renderable.get()
             
     def collect(self):
         if self.shots:

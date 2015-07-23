@@ -5,6 +5,7 @@ Created on Jul 17, 2015
 '''
 from uiContainer import uic
 from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, qApp, QPixmap
+from PyQt4.QtCore import Qt
 import os.path as osp
 import qtify_maya_window as qtfy
 import msgBox
@@ -20,7 +21,7 @@ import pymel.core as pc
 import backend.rcUtils as rcUtils
 reload(rcUtils)
 from collections import OrderedDict
-
+import pprint
 
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
@@ -34,6 +35,8 @@ class MappingUI(Form, Base):
     def __init__(self, parent=None, data=None):
         super(MappingUI, self).__init__(parent)
         self.setupUi(self)
+        self.setWindowModality(Qt.NonModal);
+        self.setModal(False)
         self.parentWin = parent
         self.data = data
         self.mappings = OrderedDict()
@@ -93,8 +96,46 @@ class MappingUI(Form, Base):
                 self.itemLayout.addWidget(item)
         return self
     
+    def addRefs(self):
+        self.updateUI('Adding references')
+        mapping = {} # how many times a file is added to each item in the mappings ui
+        for item in self.items:
+            mapping[item] = {}
+            for itm in item.getItems():
+                if itm.filePath:
+                    path = rcUtils.getNicePath(itm.filePath)
+                    if mapping[item].has_key(path):
+                        mapping[item][path] += 1
+                    else:
+                        mapping[item][path] = 1
+        paths = {} # how many times a path should be referenced according to the mappings ui
+        for key, value in mapping.items():
+            for path in value.keys():
+                if paths.has_key(path):
+                    if mapping[key][path] > paths[path]:
+                        paths[path] = mapping[key][path]
+                else:
+                    paths[path] = mapping[key][path]
+        refs = {} # how many times a path is referenced in maya
+        for ref in qutil.getReferences():
+            path = rcUtils.getNicePath(str(ref.path))
+            if refs.has_key(path):
+                refs[path] += 1
+            else:
+                refs[path] = 1
+        # add the references which are not added as many times as required
+        for path in paths:
+            if refs.has_key(path):
+                num = paths[path] - refs[path]
+            else:
+                num = paths[path]
+            if num > 0:
+                for _ in range(num):
+                    qutil.addRef(path)
+    
     def getMappings(self):
         mappings = {}
+        self.addRefs()
         for item in self.items:
             mappings[item.getTitle()] = item.getMappings()
         return mappings
@@ -135,6 +176,10 @@ class Item(Form2, Base2):
 
     def getItems(self):
         return self.items
+    
+    def updateUI(self, msg):
+        if self.parentWin:
+            self.parentWin.updateUI(msg)
                 
     def clearItems(self):
         for item in self.items:
@@ -143,8 +188,27 @@ class Item(Form2, Base2):
         
     def getMappings(self):
         mappings = {}
+        tempItems = []
+        usedRefs = []
         for item in self.items:
-            mappings[item.getCache()] = item.getLD()
+            if item.filePath:
+                if osp.exists(item.filePath):
+                    tempItems.append(item)
+                else:
+                    self.updateUI('Warning: File %s does not exist')
+            else:
+                mappings[item.getCache()] = item.getLD()
+        if tempItems:
+            for itm in tempItems:
+                for ref in qutil.getReferences():
+                    if rcUtils.getNicePath(itm.filePath) == rcUtils.getNicePath(str(ref.path)) and ref not in usedRefs:
+                        mesh = qutil.getCombinedMesh(ref)
+                        if mesh:
+                            mappings[itm.getCache()] = mesh
+                            usedRefs.append(ref)
+                            break
+                        else:
+                            self.updateUI('Warning: Could not find a mesh for %s'%itm.getCache())
         return mappings
 
     def collapse(self, event=None):
@@ -256,31 +320,9 @@ class Mapping(Form3, Base3):
     def updateUI(self, msg):
         if self.parentWin:
             self.parentWin.updateUI(msg)
-            
-    def addRef(self, path):
-        for ref in  qutil.getReferences():
-            if osp.normcase(osp.normpath(str(ref.path))) == osp.normcase(osp.normpath(path)):
-                return ref
-        return qutil.addRef(path)
-    
+
     def getLD(self):
-        if self.filePath:
-            self.updateUI('Adding reference: %s'%self.filePath)
-            ref = self.addRef(self.filePath)
-            if ref:
-                meshes = qutil.getCombinedMesh(ref)
-                if not meshes:
-                    self.updateUI('Warning: No meshes found in %s'%self.filePath)
-                    return ''
-                if len(meshes) > 1:
-                    self.updateUI('Warning: More than one meshes found in %s'%self.filePath)
-                    return ''
-                return meshes[0]
-            else:
-                self.updateUI('Could not add reference: %s'%self.filePath)
-                return
-        else:
-            node = self.ldBox.currentText()
-            if node:
-                return pc.PyNode(node)
-            return ''
+        node = self.ldBox.currentText()
+        if node:
+            return pc.PyNode(node)
+        return ''
