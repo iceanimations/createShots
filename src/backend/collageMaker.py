@@ -53,7 +53,7 @@ class CollageMaker(object):
             return path
             
             
-    def makeShot(self, shot):
+    def makeShot(self, shot, renderLayers):
         self.parentWin.processEvents()
         self.updateUI('Taking snapshot %s'%shot)
         s1, res = self.snapshot()
@@ -66,8 +66,15 @@ class CollageMaker(object):
         snap2 = osp.join(osp.dirname(s2), osp.basename(s2)+'texted')
         subprocess.call("R:\\Pipe_Repo\\Users\\Qurban\\applications\\ImageMagick\\convert.exe %s -draw \"text %s\" %s"%(s2, str(res[0]/2)+','+str(res[1]/8) +" '%s'"%maxTime, " "+snap2), shell=True)
         command = r"R:\Pipe_Repo\Users\Qurban\applications\ImageMagick\montage.exe -geometry +1+1"
-        command += ' %s %s %s'%(snap1, snap2, osp.join(homeDir, shot +'.png'))
+        path = osp.join(homeDir, shot +'.png')
+        command += ' %s %s %s'%(snap1, snap2, path)
         subprocess.call(command, shell=True)
+        if renderLayers:
+            y = 20
+            for layer, val in renderLayers.items():
+                if val:
+                    subprocess.call("R:\\Pipe_Repo\\Users\\Qurban\\applications\\ImageMagick\\convert.exe %s -draw \"text 20,%s %s\" %s"%(path, y, layer, path), shell=True)
+                    y += 20
             
     def snapshot(self):
         try:

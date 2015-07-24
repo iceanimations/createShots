@@ -103,10 +103,12 @@ class CreateShotsUI(Form, Base):
             mappingUI = mUI.MappingUI(self, data).populate()
             if mappingUI.exec_():
                 mappings = mappingUI.getMappings()
+                renderLayers = mappingUI.getRenderLayers()
             else:
                 return
             for key, value in mappings.items():
                 data.cacheLDMappings[key][0] = value
+            data.renderLayers = renderLayers
             scene = backend.SceneMaker(data, parentWin=self).make()
             fileButton = QPushButton('Copy File Path')
             folderButton = QPushButton('Copy Folder Path')

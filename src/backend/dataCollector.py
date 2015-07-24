@@ -41,9 +41,8 @@ class DataCollector(object):
         self.parentWin = parentWin
         self.database = database
         self.meshes = []
-        
         self.cacheLDMappings = {}
-        self.renderLayers = {}
+        self.renderLayers = None
         self.camera = None
         self.environments = []
         
@@ -167,10 +166,6 @@ class DataCollector(object):
                     pass
             else:
                 return osp.join(path, files[0])
-            
-    def collectRenderLayers(self):
-        for layer in imaya.getRenderLayers(renderableOnly=False):
-            self.renderLayers[layer] = layer.renderable.get()
             
     def collect(self):
         if self.shots:

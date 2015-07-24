@@ -29,6 +29,7 @@ class SceneMaker(object):
         @param parentWin: RenderCheckUI objec to update the ui  
         '''
         self.cacheLDMappings = dataCollector.cacheLDMappings
+        self.renderLayers = dataCollector.renderLayers
         self.meshes = dataCollector.meshes
         self.parentWin = parentWin
         self.shotsPath = parentWin.getShotsFilePath()
@@ -88,6 +89,12 @@ class SceneMaker(object):
                         if errors:
                             for error in errors:
                                 self.updateUI(error)
+                if self.renderLayers:
+                    for layer, val in self.renderLayers[shot].items():
+                        try:
+                            pc.PyNode(layer).renderable.set(val)
+                        except Exception as ex:
+                            self.updateUI('Warning: Could not adjust render layer, '+ str(ex))
                 path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
                 try:
                     self.updateUI('Saving shot as %s'%path)
@@ -98,7 +105,7 @@ class SceneMaker(object):
                     self.updateUI('Warning: '+ str(ex))
                     self.updateUI('Saving shot to %s'%homeDir)
                     rcUtils.saveScene(osp.basename(path))
-                self.collageMaker.makeShot(shot)
+                self.collageMaker.makeShot(shot, self.renderLayers[shot])
                 if cameraRef:
                     self.updateUI('Removing camera %s'%str(cameraRef.path))
                     cameraRef.remove()

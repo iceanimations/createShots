@@ -22,6 +22,8 @@ import backend.rcUtils as rcUtils
 reload(rcUtils)
 from collections import OrderedDict
 import pprint
+import imaya
+reload(imaya)
 
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
@@ -132,6 +134,12 @@ class MappingUI(Form, Base):
             if num > 0:
                 for _ in range(num):
                     qutil.addRef(path)
+                    
+    def getRenderLayers(self):
+        renderLayers = {}
+        for item in self.items:
+            renderLayers[item.getTitle()] = item.getRenderLayers()
+        return renderLayers
     
     def getMappings(self):
         mappings = {}
@@ -162,10 +170,15 @@ class Item(Form2, Base2):
 
         self.iconLabel.setStyleSheet(self.styleText%osp.join(iconPath,
                                                          'ic_collapse.png').replace('\\', '/'))
+        self.layersBox = cui.MultiSelectComboBox(self, '--Select Layers--')
+        self.renderLayerLayout.addWidget(self.layersBox)
+        
         self.collapse()
         self.titleFrame.mouseReleaseEvent = self.collapse
         
     def update(self):
+        layers = imaya.getRenderLayers(renderableOnly=False)
+        self.layersBox.addItems([layer.name() for layer in layers], selected=[layer.name() for layer in layers if layer.renderable.get()])
         self.clearItems()
         if self.mappings:
             for cache, ld in self.mappings.items():
@@ -186,6 +199,13 @@ class Item(Form2, Base2):
             item.deleteLater()
         del self.items[:]
         
+    def getRenderLayers(self):
+        layers = {}
+        selectedItems = self.layersBox.getSelectedItems()
+        for item in self.layersBox.getItems():
+            layers[item] = item in selectedItems
+        return layers
+        
     def getMappings(self):
         mappings = {}
         tempItems = []
@@ -202,9 +222,12 @@ class Item(Form2, Base2):
             for itm in tempItems:
                 for ref in qutil.getReferences():
                     if rcUtils.getNicePath(itm.filePath) == rcUtils.getNicePath(str(ref.path)) and ref not in usedRefs:
-                        mesh = qutil.getCombinedMesh(ref)
-                        if mesh:
-                            mappings[itm.getCache()] = mesh
+                        meshes = qutil.getCombinedMesh(ref)
+                        if meshes:
+                            if len(meshes) > 1:
+                                self.updateUI('Warning: More than one meshes found in %s'%str(ref.path))
+                                continue
+                            mappings[itm.getCache()] = meshes[0]
                             usedRefs.append(ref)
                             break
                         else:
