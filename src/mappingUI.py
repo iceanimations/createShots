@@ -93,7 +93,6 @@ class MappingUI(Form, Base):
             for key, value in self.mappings.items():
                 item = Item(self, value[0], lds).update()
                 item.setTitle(key +' ('+ str(len(item.getItems())) +')')
-                
                 self.items.append(item)
                 self.itemLayout.addWidget(item)
         return self
@@ -280,11 +279,10 @@ class Mapping(Form3, Base3):
         self.removeLabel.mouseReleaseEvent = self.hideFileName
         self.browseButton.clicked.connect(self.browseFileDialog)
         
-    def showFileName(self):
-        if self.parentWin.isToggleAll():
+    def showFileName(self, toggle=True):
+        if self.parentWin.isToggleAll() and toggle:
             self.parentWin.showFileName(self.filePath, self.getCache())
         else:
-            self.filePath = self.filePath
             self.fileLabel.show()
             self.removeLabel.show()
             self.ldBox.hide()
@@ -315,8 +313,8 @@ class Mapping(Form3, Base3):
     def update(self):
         if self.cache:
             self.setCache(self.cache)
-        if self.lds:
-            self.setLDs(self.currentLD)
+        #if self.lds:
+        self.setLDs(self.currentLD)
         return self
             
     def setCache(self, cache):
@@ -331,6 +329,12 @@ class Mapping(Form3, Base3):
         if not current:
             self.ldBox.setCurrentIndex(0)
             return
+        if osp.exists(str(current)):
+            if osp.isfile(current):
+                if osp.splitext(current)[-1] in ['.ma', '.mb']:
+                    self.filePath = current
+                    self.showFileName(False)
+            return
         current = pc.PyNode(current)
         for i in range(self.ldBox.count()):
             if current.name() == self.ldBox.itemText(i):
@@ -339,7 +343,7 @@ class Mapping(Form3, Base3):
 
     def getCache(self):
         return osp.join(self.basePath, self.cacheLabel.text())
-    
+
     def updateUI(self, msg):
         if self.parentWin:
             self.parentWin.updateUI(msg)

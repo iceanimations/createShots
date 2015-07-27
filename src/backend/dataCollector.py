@@ -18,6 +18,8 @@ import rcUtils
 reload(rcUtils)
 import imaya
 reload(imaya)
+import iutil
+reload(iutil)
 
 
 class DataCollector(object):
@@ -29,7 +31,7 @@ class DataCollector(object):
     optionally can write all the data to a database file
     '''
 
-    def __init__(self, shotsPath, shots, parentWin=None, database=None):
+    def __init__(self, shotsPath, csvPath, shots, parentWin=None, database=None):
         '''
         @param shotsPath: path to directory where shot directories live
         @param shots: shots to be created (selected from the ui)
@@ -45,12 +47,24 @@ class DataCollector(object):
         self.renderLayers = None
         self.camera = None
         self.environments = []
-        
+        self.csvData = None
+        if csvPath:
+            self.collectCSVData(csvPath)
         self.collectMeshes()
 
     def updateUI(self, msg):
         if self.parentWin:
             self.parentWin.appendStatus(msg)
+            
+    def collectCSVData(self, csvPath):
+        if osp.exists(csvPath):
+            data = qutil.getCSVFileData(csvPath)
+            if data:
+                self.csvData = data
+            else:
+                self.updateUI('Warning: Could not read data from the CSV file')
+        else:
+            self.updateUI('Warning: Could not find the specified CSV file')
             
     def collectMeshes(self):
         props = pc.ls('props')
@@ -167,6 +181,16 @@ class DataCollector(object):
             else:
                 return osp.join(path, files[0])
             
+    def getLDFromRig(self, rigPath):
+        ldPath = ''
+        if rigPath and osp.exists(rigPath):
+            for rig, ld in self.csvData:
+                if iutil.paths_equal(rig, rigPath):
+                    return ld
+        else:
+            self.updateUI('Warning: Rig <b>%s</b> did not found'%rigPath)
+        return ldPath
+
     def collect(self):
         if self.shots:
             self.updateUI('Collecting data for shot creation')
@@ -190,12 +214,28 @@ class DataCollector(object):
                 cacheMeshMappings = {}
                 cacheFiles = sorted(cacheFiles, key=len)
                 cacheFiles.reverse()
+                mappingsFile = osp.join(cachePath, 'mappings.txt')
+                mappings = None
+                if self.csvData:
+                    if not osp.exists(mappingsFile):
+                        self.updateUI('Warning: Mappings file does not exist in %s'%cachePath)
+                    else:
+                        with open(mappingsFile) as f:
+                            mappings = eval(f.read())
                 for cacheFile in cacheFiles:
-                    mesh = self.getMeshFromCacheName2(cacheFile, cacheMeshMappings.values())
-                    if not mesh:
-                        self.updateUI('Warning: Could not find a mesh for %s in %s'%(cacheFile, shot))
-                    if mesh:
-                        self.updateUI('Found: %s for %s'%(mesh.name(), cacheFile))
+                    if self.csvData:
+                        mesh = ''
+                        if mappings:
+                            for cache, rig in mappings.items():
+                                if iutil.paths_equal(cache, osp.splitext(osp.join(cachePath, cacheFile))[0]):
+                                    mesh = self.getLDFromRig(rig)
+                                    break
+                    else:
+                        mesh = self.getMeshFromCacheName2(cacheFile, cacheMeshMappings.values())
+                        if not mesh:
+                            self.updateUI('Warning: Could not find a mesh for %s in %s'%(cacheFile, shot))
+                        else:
+                            self.updateUI('Found: %s for %s'%(mesh.name(), cacheFile))
                     cacheMeshMappings[osp.join(cachePath, cacheFile)] = mesh
                 camera = self.getCameraFile(cameraPath)
                 if not camera:

@@ -50,9 +50,10 @@ class CreateShotsUI(Form, Base):
         
         self.startButton.clicked.connect(self.start)
         self.browseButton2.clicked.connect(self.setShotsFilePath)
+        self.browseButton.clicked.connect(self.setCSVFilePath)
         self.stopButton.clicked.connect(self.stop)
         self.shotsFilePathBox.textChanged.connect(self.populateShots)
-        
+
         appUsageApp.updateDatabase('createShots')
         
     def isShotNameValid(self, name):
@@ -60,6 +61,9 @@ class CreateShotsUI(Form, Base):
         if len(parts) == 2:
             if re.match('SQ\\d{3}', parts[0]) and re.match('SH\\d{3}', parts[1]):
                 return True
+            
+    def isCollageOnly(self):
+        return self.collageOnlyButton.isChecked()
         
     def populateShots(self, path):
         if path:
@@ -80,7 +84,7 @@ class CreateShotsUI(Form, Base):
 
     def processEvents(self):
         qApp.processEvents()
-        
+
     def stop(self):
         if self.dataCollector:
             del self.dataCollector
@@ -91,7 +95,7 @@ class CreateShotsUI(Form, Base):
         if self.deadlineSubmitter:
             del self.deadlineSubmitter
             self.deadlineSubmitter = None
-        
+
     def start(self):
         self.statusBox.clear()
         shotsFilePath = self.getShotsFilePath()
@@ -99,7 +103,7 @@ class CreateShotsUI(Form, Base):
             selectedShots = self.shotsBox.getSelectedItems()
             if not selectedShots:
                 selectedShots = self.shotsBox.getItems()
-            data = backend.DataCollector(shotsFilePath, selectedShots, parentWin=self).collect()
+            data = backend.DataCollector(shotsFilePath, self.getCSVFilePath(), selectedShots, parentWin=self).collect()
             mappingUI = mUI.MappingUI(self, data).populate()
             if mappingUI.exec_():
                 mappings = mappingUI.getMappings()
@@ -123,6 +127,18 @@ class CreateShotsUI(Form, Base):
             else:
                 pass
         self.appendStatus('DONE...')
+        
+    def setCSVFilePath(self):
+        filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.csv')
+        if filename:
+            self.csvFilePathBox.setText(filename)
+    
+    def getCSVFilePath(self):
+        path = self.csvFilePathBox.text()
+        if not osp.exists(path):
+            self.appendStatus('Warning: Could not find csv file')
+            path = ''
+        return path
 
     def setShotsFilePath(self):
         filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
