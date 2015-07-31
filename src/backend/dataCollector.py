@@ -18,7 +18,10 @@ import rcUtils
 reload(rcUtils)
 import imaya
 reload(imaya)
-import iutil
+try:
+    import iutil
+except:
+    import iutilities as iutil
 reload(iutil)
 
 

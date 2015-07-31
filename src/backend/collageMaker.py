@@ -6,9 +6,9 @@ Created on Jul 14, 2015
 import imaya
 reload(imaya)
 try:
-    import iutilities as iutil
-except:
     import iutil
+except:
+    import iutilities as iutil
 reload(iutil)
 import subprocess
 import os
@@ -86,15 +86,3 @@ class CollageMaker(object):
             width = node.width.get()/4; height = node.height.get()/4
             return imaya.snapshot([width, height]), [width, height]
         return imaya.snapshot(), [256, 256]
-        
-    def render(self, directory, filename):
-        mels = ('\"setAttr defaultRenderGlobals.animation 0;setAttr defaultRenderLayer.renderable 1;\"',
-                '\"setAttr defaultRenderGlobals.animation 0;currentTime `playbackOptions -q -maxTime`;setAttr "defaultRenderLayer.renderable" 1;\"')
-        for i, mel in enumerate(mels):
-            newDir = osp.join(directory, str(i))
-            if not osp.exists(newDir):
-                os.mkdir(newDir)
-            command = r'C:\Program Files\Autodesk\Maya2015\bin\render.exe  -preRender %s -rd %s %s'%(mel, newDir, filename)
-            subprocess.call(command)
-        return directory
-        

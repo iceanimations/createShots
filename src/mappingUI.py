@@ -4,7 +4,7 @@ Created on Jul 17, 2015
 @author: qurban.ali
 '''
 from uiContainer import uic
-from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, qApp, QPixmap
+from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, qApp, QPixmap, QRadioButton
 from PyQt4.QtCore import Qt
 import os.path as osp
 import qtify_maya_window as qtfy
@@ -224,8 +224,15 @@ class Item(Form2, Base2):
                         meshes = qutil.getCombinedMesh(ref)
                         if meshes:
                             if len(meshes) > 1:
-                                self.updateUI('Warning: More than one meshes found in %s'%str(ref.path))
-                                continue
+                                sBox = cui.SelectionBox(self.parentWin, [QRadioButton(mesh.name()) for mesh in meshes], 'More than one meshes found for %s, please select one'%itm.getCache())
+                                sBox.setCancelToolTip('skip this cache file')
+                                sBox.exec_()
+                                try:
+                                    meshes = sBox.getSelectedItems()
+                                    if not meshes: continue
+                                    else: meshes = [pc.PyNode(meshes[0])]
+                                except IndexError:
+                                    continue
                             mappings[itm.getCache()] = meshes[0]
                             usedRefs.append(ref)
                             break
