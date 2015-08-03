@@ -48,6 +48,7 @@ class DataCollector(object):
         self.meshes = []
         self.cacheLDMappings = {}
         self.renderLayers = None
+        self.envLayerSettings = None
         self.camera = None
         self.environments = []
         self.csvData = None

@@ -30,6 +30,7 @@ class SceneMaker(object):
         '''
         self.cacheLDMappings = dataCollector.cacheLDMappings
         self.renderLayers = dataCollector.renderLayers
+        self.envLayerSettings = dataCollector.envLayerSettings
         self.meshes = dataCollector.meshes
         if self.meshes is None:
             self.meshes = []
@@ -73,6 +74,34 @@ class SceneMaker(object):
                     pc.select(obj, add=True)
             pc.mel.ShowSelectedObjects()
             del self.usedObjects[:]
+            
+    def setupEnvLayer(self, shot):
+        self.updateUI('Checking Env layer settings for %s'%shot)
+        if self.envLayerSettings:
+            settings = self.envLayerSettings[shot]
+            if settings:
+                cl = currentLayer = pc.PyNode(pc.editRenderLayerGlobals(q=True, currentRenderLayer=True))
+                if not currentLayer.name().lower().startswith('env'):
+                    try:
+                        currentLayer = [layer for layer in mi.getRenderLayers(renderableOnly=False) if layer.name().lower().startswith('env')][0]
+                        pc.editRenderLayerGlobals(currentRenderLayer=currentLayer)
+                    except IndexError:
+                        self.updateUI('Warning: No render layer found with name: Env')
+                        return
+                node = pc.PyNode('defaultRenderGlobals')
+                if settings[0]:
+                    pc.editRenderLayerAdjustment(node.endFrame)
+                    node.endFrame.set(node.startFrame.get())
+                else:
+                    if settings[1] != node.startFrame.get():
+                        pc.editRenderLayerAdjustment(node.startFrame)
+                        node.startFrame.set(settings[1])
+                    if settings[2] != node.endFrame.get():
+                        pc.editRenderLayerAdjustment(node.endFrame)
+                        node.endFrame.set(settings[2])
+                pc.editRenderLayerGlobals(currentRenderLayer=cl)
+                    
+                    
 
     def make(self):
         if self.cacheLDMappings:
@@ -126,6 +155,7 @@ class SceneMaker(object):
                             self.updateUI('Warning: Could not adjust render layer, '+ str(ex))
                 path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
                 self.hideObjects()
+                self.setupEnvLayer(shot)
                 try:
                     if not self.parentWin.isCollageOnly():
                         self.updateUI('Saving shot as %s'%path)

@@ -21,6 +21,8 @@ reload(mUI)
 import pprint
 import appUsageApp
 reload(appUsageApp)
+import mayaStartup
+reload(mayaStartup)
 
 rcUtils = backend.rcUtils
 
@@ -97,6 +99,7 @@ class CreateShotsUI(Form, Base):
             self.deadlineSubmitter = None
 
     def start(self):
+        mayaStartup.FPSDialog(self).exec_()
         self.statusBox.clear()
         shotsFilePath = self.getShotsFilePath()
         if shotsFilePath:
@@ -108,11 +111,13 @@ class CreateShotsUI(Form, Base):
             if mappingUI.exec_():
                 mappings = mappingUI.getMappings()
                 renderLayers = mappingUI.getRenderLayers()
+                envLayerSettings = mappingUI.getEnvLayerSettings()
             else:
                 return
             for key, value in mappings.items():
                 data.cacheLDMappings[key][0] = value
             data.renderLayers = renderLayers
+            data.envLayerSettings = envLayerSettings
             scene = backend.SceneMaker(data, parentWin=self).make()
             fileButton = QPushButton('Copy File Path')
             folderButton = QPushButton('Copy Folder Path')

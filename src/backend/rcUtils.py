@@ -7,6 +7,8 @@ import os
 import os.path as osp
 import maya.cmds as cmds
 import pymel.core as pc
+import imaya
+reload(imaya)
 
 homeDir = osp.join(osp.expanduser('~'), 'create_shots')
 if not osp.exists(homeDir):
@@ -26,3 +28,15 @@ def removeCameraRef():
                 
 def getNicePath(path):
     return osp.normcase(osp.normpath(path))
+
+def getEnvLayerStartEnd():
+    cl = currentLayer = pc.PyNode(pc.editRenderLayerGlobals(currentRenderLayer=True, q=True))
+    if not currentLayer.name().lower().startswith('env'):
+        try:
+            currentLayer = [layer for layer in imaya.getRenderLayers(renderableOnly=False)][0]
+            pc.editRenderLayerGlobals(currentRenderLayer=currentLayer)
+        except IndexError:
+            return
+    start, end = pc.PyNode('defaultRenderGlobals').startFrame.get(), pc.PyNode('defaultRenderGlobals').endFrame.get()
+    pc.editRenderLayerGlobals(currentRenderLayer=cl)
+    return currentLayer, start, end

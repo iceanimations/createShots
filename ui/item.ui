@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>315</width>
+    <width>601</width>
     <height>139</height>
    </rect>
   </property>
@@ -115,6 +115,67 @@
       <item>
        <layout class="QHBoxLayout" name="renderLayerLayout">
         <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Env Layer: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="singleFrameButton">
+          <property name="text">
+           <string>Single Frame</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Start</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="startFrameBox">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>End</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="endFrameBox">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -145,5 +206,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>singleFrameButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>startFrameBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>108</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>106</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>singleFrameButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>endFrameBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>302</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

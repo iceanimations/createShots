@@ -86,12 +86,17 @@ class MappingUI(Form, Base):
                         itm.fileLabel.hide()
                         itm.fileLabel.setText('')
                         itm.ldBox.show()
+                        
+    def getEnvStartEnd(self):
+        _, start, end = rcUtils.getEnvLayerStartEnd()
+        return start, end
         
     def populate(self):
+        start, end = self.getEnvStartEnd()
         if self.mappings:
             lds = self.data.meshes
             for key, value in self.mappings.items():
-                item = Item(self, value[0], lds).update()
+                item = Item(self, value[0], lds, start, end).update()
                 item.setTitle(key +' ('+ str(len(item.getItems())) +')')
                 self.items.append(item)
                 self.itemLayout.addWidget(item)
@@ -140,6 +145,12 @@ class MappingUI(Form, Base):
             renderLayers[item.getTitle()] = item.getRenderLayers()
         return renderLayers
     
+    def getEnvLayerSettings(self):
+        settings = {}
+        for item in self.items:
+            settings[item.getTitle()] = [item.isSingleFrame(), item.getStartFrame(), item.getEndFrame()]
+        return settings
+    
     def getMappings(self):
         mappings = {}
         self.addRefs()
@@ -153,7 +164,7 @@ class MappingUI(Form, Base):
         
 Form2, Base2 = uic.loadUiType(osp.join(uiPath, 'item.ui'))
 class Item(Form2, Base2):
-    def __init__(self, parent=None, mapping=None, lds=None):
+    def __init__(self, parent=None, mapping=None, lds=None, envStart=None, envEnd=None):
         super(Item, self).__init__(parent)
         self.setupUi(self)
         self.parentWin = parent
@@ -166,6 +177,9 @@ class Item(Form2, Base2):
         self.styleText = ('background-image: url(%s);\n'+
                       'background-repeat: no-repeat;\n'+
                       'background-position: center right')
+        
+        self.startFrameBox.setValue(envStart)
+        self.endFrameBox.setValue(envEnd)
 
         self.iconLabel.setStyleSheet(self.styleText%osp.join(iconPath,
                                                          'ic_collapse.png').replace('\\', '/'))
@@ -198,13 +212,22 @@ class Item(Form2, Base2):
             item.deleteLater()
         del self.items[:]
         
+    def getStartFrame(self):
+        return self.startFrameBox.value()
+
+    def getEndFrame(self):
+        return self.endFrameBox.value()
+
+    def isSingleFrame(self):
+        return self.singleFrameButton.isChecked()
+
     def getRenderLayers(self):
         layers = {}
         selectedItems = self.layersBox.getSelectedItems()
         for item in self.layersBox.getItems():
             layers[item] = item in selectedItems
         return layers
-        
+
     def getMappings(self):
         mappings = {}
         tempItems = []
