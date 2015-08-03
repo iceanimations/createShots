@@ -31,10 +31,21 @@ class SceneMaker(object):
         self.cacheLDMappings = dataCollector.cacheLDMappings
         self.renderLayers = dataCollector.renderLayers
         self.meshes = dataCollector.meshes
+        if self.meshes is None:
+            self.meshes = []
         self.parentWin = parentWin
         self.shotsPath = parentWin.getShotsFilePath()
         self.collageMaker = collageMaker.CollageMaker(self.parentWin)
         self.collage = None
+        self.usedObjects = []
+        
+        self.setAllObjects()
+    
+    def setAllObjects(self):
+        for value in self.cacheLDMappings.values():
+            for ld in value[0].values():
+                if ld and ld not in self.meshes:
+                    self.meshes.append(ld)
         
     def updateUI(self, msg):
         if self.parentWin:
@@ -45,6 +56,23 @@ class SceneMaker(object):
             if mesh.history(type='cacheFile'):
                 pc.select(mesh)
                 pc.mel.eval('deleteCacheFile 3 { "keep", "", "geometry" } ;')
+                
+    def hideObjects(self):
+        if self.usedObjects:
+            pc.select(cl=True)
+            for obj in self.meshes:
+                if obj not in self.usedObjects:
+                    pc.select(obj, add=True)
+            pc.mel.HideSelectedObjects()
+    
+    def showObjects(self):
+        if self.usedObjects:
+            pc.select(cl=True)
+            for obj in self.meshes:
+                if obj not in self.usedObjects:
+                    pc.select(obj, add=True)
+            pc.mel.ShowSelectedObjects()
+            del self.usedObjects[:]
 
     def make(self):
         if self.cacheLDMappings:
@@ -71,6 +99,7 @@ class SceneMaker(object):
                     if ld:
                         self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
                         try:
+                            self.usedObjects.append(ld)
                             mi.applyCache(ld, cache)
                         except Exception as ex:
                             self.updateUI('Warning: Could not apply cache to %s, %s'%(ld.name(), str(ex)))
@@ -96,6 +125,7 @@ class SceneMaker(object):
                         except Exception as ex:
                             self.updateUI('Warning: Could not adjust render layer, '+ str(ex))
                 path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
+                self.hideObjects()
                 try:
                     if not self.parentWin.isCollageOnly():
                         self.updateUI('Saving shot as %s'%path)
@@ -110,6 +140,7 @@ class SceneMaker(object):
                 if cameraRef:
                     self.updateUI('Removing camera %s'%str(cameraRef.path))
                     cameraRef.remove()
+                self.showObjects()
                 count += 1
             self.parentWin.setStatus('')
             self.collage = self.collageMaker.make()
