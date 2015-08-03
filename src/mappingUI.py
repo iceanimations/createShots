@@ -336,17 +336,20 @@ class Mapping(Form3, Base3):
         if not current:
             self.ldBox.setCurrentIndex(0)
             return
-        if osp.exists(str(current)):
-            if osp.isfile(current):
-                if osp.splitext(current)[-1] in ['.ma', '.mb']:
-                    self.filePath = current
-                    self.showFileName(False)
-            return
-        current = pc.PyNode(current)
-        for i in range(self.ldBox.count()):
-            if current.name() == self.ldBox.itemText(i):
-                self.ldBox.setCurrentIndex(i)
-                break
+        try:
+            current = pc.PyNode(current)
+            for i in range(self.ldBox.count()):
+                if current.name() == self.ldBox.itemText(i):
+                    self.ldBox.setCurrentIndex(i)
+                    break
+        except pc.MayaAttributeError:
+            if osp.exists(str(current)):
+                if osp.isfile(current):
+                    if osp.splitext(current)[-1] in ['.ma', '.mb']:
+                        self.filePath = current
+                        self.showFileName(False)
+            else:
+                self.updateUI('Warning: File not found: %s'%current)
 
     def getCache(self):
         return osp.join(self.basePath, self.cacheLabel.text())
