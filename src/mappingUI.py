@@ -148,7 +148,7 @@ class MappingUI(Form, Base):
     def getEnvLayerSettings(self):
         settings = {}
         for item in self.items:
-            settings[item.getTitle()] = [item.isSingleFrame(), item.getStartFrame(), item.getEndFrame()]
+            settings[item.getTitle()] = [item.isSingleFrame(), item.isOverride(), item.getStartFrame(), item.getEndFrame()]
         return settings
     
     def getMappings(self):
@@ -217,6 +217,9 @@ class Item(Form2, Base2):
 
     def getEndFrame(self):
         return self.endFrameBox.value()
+    
+    def isOverride(self):
+        return self.overrideButton.isChecked()
 
     def isSingleFrame(self):
         return self.singleFrameButton.isChecked()

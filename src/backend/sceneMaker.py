@@ -93,12 +93,13 @@ class SceneMaker(object):
                     pc.editRenderLayerAdjustment(node.endFrame)
                     node.endFrame.set(node.startFrame.get())
                 else:
-                    if settings[1] != node.startFrame.get():
-                        pc.editRenderLayerAdjustment(node.startFrame)
-                        node.startFrame.set(settings[1])
-                    if settings[2] != node.endFrame.get():
-                        pc.editRenderLayerAdjustment(node.endFrame)
-                        node.endFrame.set(settings[2])
+                    if settings[1]:
+                        if settings[2] != node.startFrame.get():
+                            pc.editRenderLayerAdjustment(node.startFrame)
+                            node.startFrame.set(settings[2])
+                        if settings[3] != node.endFrame.get():
+                            pc.editRenderLayerAdjustment(node.endFrame)
+                            node.endFrame.set(settings[3])
                 pc.editRenderLayerGlobals(currentRenderLayer=cl)
                     
                     

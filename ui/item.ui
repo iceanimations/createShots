@@ -123,6 +123,9 @@
         </item>
         <item>
          <widget class="QCheckBox" name="singleFrameButton">
+          <property name="toolTip">
+           <string>Configure single frame for rendering for the Env layer</string>
+          </property>
           <property name="text">
            <string>Single Frame</string>
           </property>
@@ -132,6 +135,16 @@
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="overrideButton">
+          <property name="toolTip">
+           <string>Override the frame range for Env layer</string>
+          </property>
+          <property name="text">
+           <string>Override</string>
           </property>
          </widget>
         </item>
@@ -149,6 +162,9 @@
             <width>100</width>
             <height>0</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>Start frame to override</string>
           </property>
           <property name="maximum">
            <number>999999999</number>
@@ -170,6 +186,9 @@
             <height>0</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>End frame to override</string>
+          </property>
           <property name="maximum">
            <number>999999999</number>
           </property>
@@ -187,6 +206,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label">
@@ -218,7 +244,7 @@
      <y>102</y>
     </hint>
     <hint type="destinationlabel">
-     <x>219</x>
+     <x>297</x>
      <y>106</y>
     </hint>
    </hints>
@@ -234,8 +260,24 @@
      <y>100</y>
     </hint>
     <hint type="destinationlabel">
-     <x>302</x>
+     <x>433</x>
      <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>singleFrameButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>overrideButton</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>106</y>
     </hint>
    </hints>
   </connection>
