@@ -10,6 +10,7 @@ import setupSaveScene
 reload(setupSaveScene)
 import os.path as osp
 import imaya as mi
+reload(mi)
 import rcUtils
 reload(rcUtils)
 import os
@@ -119,6 +120,7 @@ class SceneMaker(object):
             self.updateUI('<b>Starting scene making</b>')
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
+            mi.toggleTextureMode(True)
             for shot in self.cacheLDMappings.keys():
                 self.parentWin.setStatus('Creating %s of %s'%(count, shotLen))
                 self.clearCaches()
@@ -173,6 +175,7 @@ class SceneMaker(object):
                     cameraRef.remove()
                 self.showObjects()
                 count += 1
+            mi.toggleTextureMode(False)
             self.parentWin.setStatus('')
             self.collage = self.collageMaker.make()
         return self
