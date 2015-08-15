@@ -40,7 +40,7 @@ class CollageMaker(object):
             for shot in snapshots:
                 try:
                     if not self.parentWin.isCollageOnly():
-                        if not self.parentWin.saveToLocalButton.isChecked():
+                        if not self.parentWin.isLocal():
                             shutil.copy(shot, osp.join(self.seqPath, osp.splitext(osp.basename(shot))[0], 'lighting', 'files'))
                 except Exception as ex:
                     self.updateUI('Warning: %s'%str(ex))

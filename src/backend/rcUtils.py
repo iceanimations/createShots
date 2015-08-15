@@ -9,6 +9,7 @@ import maya.cmds as cmds
 import pymel.core as pc
 import imaya
 reload(imaya)
+import shutil
 
 homeDir = osp.join(osp.expanduser('~'), 'create_shots')
 if not osp.exists(homeDir):
@@ -18,6 +19,15 @@ def saveScene(name):
     path = osp.join(homeDir, name)
     cmds.file(rename=path)
     cmds.file(save=True)
+    
+def copyFiles(path):
+    for phile in os.listdir(homeDir):
+        filePath = osp.join(homeDir, phile)
+        if osp.isfile(filePath) and osp.splitext(filePath)[-1] in ['.ma', '.mb']:
+            try:
+                shutil.copy(filePath, path)
+            except Exception as ex:
+                yield 'Could not copy %s to %s: %s'%(osp.basename(filePath), path, str(ex))
     
 def removeCameraRef():
     for ref in pc.ls(type=pc.nt.Reference):

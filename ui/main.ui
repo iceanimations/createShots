@@ -20,14 +20,14 @@
       <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Shots Dir</string>
+         <string>Shots Dir   </string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="shotsFilePathBox">
         <property name="toolTip">
-         <string>Add sequence directory</string>
+         <string>Add directory where you see list of shots</string>
         </property>
        </widget>
       </item>
@@ -48,15 +48,44 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>CSV File  </string>
+         <string>CSV File    </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="csvFilePathBox"/>
+       <widget class="QLineEdit" name="csvFilePathBox">
+        <property name="toolTip">
+         <string>Add path to CSV file</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QToolButton" name="browseButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Output Dir</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="outputPathBox">
+        <property name="toolTip">
+         <string>Path to save maya files</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="browseButton1">
         <property name="text">
          <string>...</string>
         </property>

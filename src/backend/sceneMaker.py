@@ -61,19 +61,21 @@ class SceneMaker(object):
                 
     def hideObjects(self):
         if self.usedObjects:
-            pc.select(cl=True)
-            for obj in self.meshes:
-                if obj not in self.usedObjects:
-                    pc.select(obj, add=True)
-            pc.mel.HideSelectedObjects()
+            for layer in mi.getRenderLayers():
+                pc.select(cl=True)
+                pc.editRenderLayerGlobals(currentRenderLayer=layer)
+                for obj in self.meshes:
+                    if obj not in self.usedObjects:
+                        pc.select(obj, add=True)
+                pc.mel.HideSelectedObjects()
     
     def showObjects(self):
         if self.usedObjects:
-            pc.select(cl=True)
-            for obj in self.meshes:
-                if obj not in self.usedObjects:
-                    pc.select(obj, add=True)
-            pc.mel.ShowSelectedObjects()
+            for layer in mi.getRenderLayers():
+                pc.editRenderLayerGlobals(currentRenderLayer=layer)
+                pc.select(cl=True)
+                pc.select(self.meshes)
+                pc.mel.ShowSelectedObjects()
             del self.usedObjects[:]
             
     def setupEnvLayer(self, shot):
@@ -120,7 +122,6 @@ class SceneMaker(object):
             self.updateUI('<b>Starting scene making</b>')
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
-            mi.toggleTextureMode(True)
             for shot in self.cacheLDMappings.keys():
                 self.parentWin.setStatus('Creating %s of %s'%(count, shotLen))
                 self.clearCaches()
@@ -162,20 +163,21 @@ class SceneMaker(object):
                 try:
                     if not self.parentWin.isCollageOnly():
                         self.updateUI('Saving shot as %s'%path)
-                        if os.environ['USERNAME'] == 'qurban.ali' or self.parentWin.saveToLocalButton.isChecked():
+                        if os.environ['USERNAME'] == 'qurban.ali' or self.parentWin.isLocal():
                             raise RuntimeError, 'No warning, just bypassed the file saving in P drive'
                         mi.saveSceneAs(path)
                 except Exception as ex:
                     self.updateUI('Warning: '+ str(ex))
                     self.updateUI('Saving shot to %s'%homeDir)
                     rcUtils.saveScene(osp.basename(path))
+                mi.toggleTextureMode(True)
                 self.collageMaker.makeShot(shot, self.renderLayers[shot])
+                mi.toggleTextureMode(False)
                 if cameraRef:
                     self.updateUI('Removing camera %s'%str(cameraRef.path))
                     cameraRef.remove()
                 self.showObjects()
                 count += 1
-            mi.toggleTextureMode(False)
             self.parentWin.setStatus('')
             self.collage = self.collageMaker.make()
         return self

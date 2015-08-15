@@ -55,8 +55,26 @@ class CreateShotsUI(Form, Base):
         self.browseButton.clicked.connect(self.setCSVFilePath)
         self.stopButton.clicked.connect(self.stop)
         self.shotsFilePathBox.textChanged.connect(self.populateShots)
+        self.browseButton1.clicked.connect(self.setOutputPath)
 
         appUsageApp.updateDatabase('createShots')
+        
+    def setOutputPath(self):
+        filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
+        if filename:
+            self.outputPathBox.setText(filename)
+        
+    def getOutputPath(self):
+        path = self.outputPathBox.text()
+        if path:
+            if osp.exists(path):
+                return path
+            else:
+                self.showMessage(msg='Could not find the output path',
+                                 icon=QMessageBox.Information)
+        else:
+            self.showMessage(msg='Output path not specified',
+                             icon=QMessageBox.Information)
         
     def isShotNameValid(self, name):
         parts = name.split('_')
@@ -97,11 +115,17 @@ class CreateShotsUI(Form, Base):
         if self.deadlineSubmitter:
             del self.deadlineSubmitter
             self.deadlineSubmitter = None
+            
+    def isLocal(self):
+        return self.saveToLocalButton.isChecked()
 
     def start(self):
         mayaStartup.FPSDialog(self).exec_()
         self.statusBox.clear()
         shotsFilePath = self.getShotsFilePath()
+        if not self.isCollageOnly() and self.isLocal():
+            if not self.getOutputPath():
+                return
         if shotsFilePath:
             selectedShots = self.shotsBox.getSelectedItems()
             if not selectedShots:
@@ -119,6 +143,11 @@ class CreateShotsUI(Form, Base):
             data.renderLayers = renderLayers
             data.envLayerSettings = envLayerSettings
             scene = backend.SceneMaker(data, parentWin=self).make()
+            if not self.isCollageOnly() and self.isLocal():
+                errors = rcUtils.copyFiles(self.getOutputPath())
+                if errors:
+                    for error in errors:
+                        self.appendStatus('Warning: %s'%error)
             fileButton = QPushButton('Copy File Path')
             folderButton = QPushButton('Copy Folder Path')
             btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',
