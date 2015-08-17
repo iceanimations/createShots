@@ -56,8 +56,13 @@ class CreateShotsUI(Form, Base):
         self.stopButton.clicked.connect(self.stop)
         self.shotsFilePathBox.textChanged.connect(self.populateShots)
         self.browseButton1.clicked.connect(self.setOutputPath)
+        self.collageOnlyButton.toggled.connect(lambda val: self.filesOnlyButton.setChecked(False))
+        self.filesOnlyButton.toggled.connect(lambda val: self.collageOnlyButton.setChecked(False))
 
         appUsageApp.updateDatabase('createShots')
+        
+    def isFilesOnly(self):
+        return self.filesOnlyButton.isChecked()
         
     def setOutputPath(self):
         filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
@@ -148,19 +153,20 @@ class CreateShotsUI(Form, Base):
                 if errors:
                     for error in errors:
                         self.appendStatus('Warning: %s'%error)
-            fileButton = QPushButton('Copy File Path')
-            folderButton = QPushButton('Copy Folder Path')
-            btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',
-                                   btns=QMessageBox.Ok,
-                                   customButtons=[fileButton, folderButton],
-                                   icon=QMessageBox.Information)
-            if btn == fileButton:
-                qApp.clipboard().setText(scene.collage)
-            elif btn == folderButton:
-                qApp.clipboard().setText(osp.dirname(scene.collage))
-            else:
-                pass
-        self.appendStatus('DONE...')
+            self.appendStatus('DONE...')
+            if not self.isFilesOnly():
+                fileButton = QPushButton('Copy File Path')
+                folderButton = QPushButton('Copy Folder Path')
+                btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',
+                                       btns=QMessageBox.Ok,
+                                       customButtons=[fileButton, folderButton],
+                                       icon=QMessageBox.Information)
+                if btn == fileButton:
+                    qApp.clipboard().setText(scene.collage)
+                elif btn == folderButton:
+                    qApp.clipboard().setText(osp.dirname(scene.collage))
+                else:
+                    pass
         
     def setCSVFilePath(self):
         filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.csv')

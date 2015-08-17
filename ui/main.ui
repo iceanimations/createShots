@@ -180,6 +180,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="filesOnlyButton">
+        <property name="toolTip">
+         <string>Create maya files only, don't create collage</string>
+        </property>
+        <property name="text">
+         <string>Files Only</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="collageOnlyButton">
         <property name="toolTip">
          <string>Don't create maya shot files</string>
@@ -262,8 +272,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>642</y>
+     <x>756</x>
+     <y>574</y>
     </hint>
     <hint type="destinationlabel">
      <x>159</x>
@@ -278,8 +288,8 @@
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>147</y>
+     <x>70</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>94</x>
@@ -294,8 +304,8 @@
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>138</x>
-     <y>144</y>
+     <x>166</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>219</x>
@@ -310,12 +320,12 @@
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>106</x>
-     <y>144</y>
+     <x>166</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>52</x>
-     <y>143</y>
+     <x>63</x>
+     <y>187</y>
     </hint>
    </hints>
   </connection>
@@ -326,12 +336,12 @@
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>147</y>
+     <x>41</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>140</x>
-     <y>153</y>
+     <x>166</x>
+     <y>187</y>
     </hint>
    </hints>
   </connection>
@@ -342,12 +352,12 @@
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>17</x>
-     <y>145</y>
+     <x>28</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>24</x>
-     <y>146</y>
+     <x>35</x>
+     <y>187</y>
     </hint>
    </hints>
   </connection>
@@ -358,12 +368,44 @@
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>157</y>
+     <x>166</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>158</x>
-     <y>152</y>
+     <x>166</x>
+     <y>187</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>filesOnlyButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>collageOnlyButton</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>310</x>
+     <y>564</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>568</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>collageOnlyButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>filesOnlyButton</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>389</x>
+     <y>556</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>559</y>
     </hint>
    </hints>
   </connection>

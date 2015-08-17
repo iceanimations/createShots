@@ -170,14 +170,16 @@ class SceneMaker(object):
                     self.updateUI('Warning: '+ str(ex))
                     self.updateUI('Saving shot to %s'%homeDir)
                     rcUtils.saveScene(osp.basename(path))
-                mi.toggleTextureMode(True)
-                self.collageMaker.makeShot(shot, self.renderLayers[shot])
-                mi.toggleTextureMode(False)
+                if not self.parentWin.isFilesOnly():
+                    mi.toggleTextureMode(True)
+                    self.collageMaker.makeShot(shot, self.renderLayers[shot])
+                    mi.toggleTextureMode(False)
                 if cameraRef:
                     self.updateUI('Removing camera %s'%str(cameraRef.path))
                     cameraRef.remove()
                 self.showObjects()
                 count += 1
             self.parentWin.setStatus('')
-            self.collage = self.collageMaker.make()
+            if not self.parentWin.isFilesOnly():
+                self.collage = self.collageMaker.make()
         return self
