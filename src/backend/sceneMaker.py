@@ -122,6 +122,7 @@ class SceneMaker(object):
             self.updateUI('<b>Starting scene making</b>')
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
+            cameraRef = None
             for shot in self.cacheLDMappings.keys():
                 self.parentWin.setStatus('Creating %s of %s'%(count, shotLen))
                 self.clearCaches()
@@ -136,7 +137,9 @@ class SceneMaker(object):
                             mi.applyCache(ld, cache)
                         except Exception as ex:
                             self.updateUI('Warning: Could not apply cache to %s, %s'%(ld.name(), str(ex)))
-                cameraRef = None
+                if cameraRef:
+                    self.updateUI('Removing camera %s'%str(cameraRef.path))
+                    cameraRef.remove()
                 if len(data) == 2:
                     self.updateUI('adding camera %s'%osp.basename(data[-1]))
                     cameraRef = qutil.addRef(data[-1])
@@ -174,9 +177,6 @@ class SceneMaker(object):
                     mi.toggleTextureMode(True)
                     self.collageMaker.makeShot(shot, self.renderLayers[shot])
                     mi.toggleTextureMode(False)
-                if cameraRef:
-                    self.updateUI('Removing camera %s'%str(cameraRef.path))
-                    cameraRef.remove()
                 self.showObjects()
                 count += 1
             self.parentWin.setStatus('')
