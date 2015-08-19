@@ -27,7 +27,7 @@ class SceneMaker(object):
     def __init__(self, dataCollector, parentWin=None):
         '''
         @param dataCollector: instance of DataCollector class
-        @param parentWin: RenderCheckUI objec to update the ui  
+        @param parentWin: RenderCheckUI objec to update the ui
         '''
         self.cacheLDMappings = dataCollector.cacheLDMappings
         self.renderLayers = dataCollector.renderLayers
@@ -61,21 +61,22 @@ class SceneMaker(object):
                 
     def hideObjects(self):
         if self.usedObjects:
-            for layer in mi.getRenderLayers():
-                pc.select(cl=True)
-                pc.editRenderLayerGlobals(currentRenderLayer=layer)
-                for obj in self.meshes:
-                    if obj not in self.usedObjects:
-                        pc.select(obj, add=True)
-                pc.mel.HideSelectedObjects()
+#             for layer in mi.getRenderLayers():
+#                 pc.select(cl=True)
+#                 pc.editRenderLayerGlobals(currentRenderLayer=layer)
+            pc.select(cl=True)
+            for obj in self.meshes:
+                if obj not in self.usedObjects:
+                    pc.select(obj, add=True)
+            pc.mel.HideSelectedObjects()
     
     def showObjects(self):
         if self.usedObjects:
-            for layer in mi.getRenderLayers():
-                pc.editRenderLayerGlobals(currentRenderLayer=layer)
-                pc.select(cl=True)
-                pc.select(self.meshes)
-                pc.mel.ShowSelectedObjects()
+#             for layer in mi.getRenderLayers():
+#                 pc.editRenderLayerGlobals(currentRenderLayer=layer)
+            pc.select(cl=True)
+            pc.select(self.meshes)
+            pc.mel.ShowSelectedObjects()
             del self.usedObjects[:]
             
     def setupEnvLayer(self, shot):
@@ -120,6 +121,10 @@ class SceneMaker(object):
                         path2 = osp.join(path, phile2)
                         os.remove(path2)
             self.updateUI('<b>Starting scene making</b>')
+            for layer in mi.getRenderLayers(renderableOnly=False):
+                if layer.name().lower().startswith('default'):
+                    pc.editRenderLayerGlobals(currentRenderLayer=layer)
+                    break
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
             cameraRef = None
