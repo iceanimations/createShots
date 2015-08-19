@@ -148,11 +148,11 @@ class CreateShotsUI(Form, Base):
             data.renderLayers = renderLayers
             data.envLayerSettings = envLayerSettings
             scene = backend.SceneMaker(data, parentWin=self).make()
-            if not self.isCollageOnly() and self.isLocal():
-                errors = rcUtils.copyFiles(self.getOutputPath())
-                if errors:
-                    for error in errors:
-                        self.appendStatus('Warning: %s'%error)
+#             if not self.isCollageOnly() and self.isLocal():
+#                 errors = rcUtils.copyFiles(self.getOutputPath())
+#                 if errors:
+#                     for error in errors:
+#                         self.appendStatus('Warning: %s'%error)
             self.appendStatus('DONE...')
             if not self.isFilesOnly():
                 fileButton = QPushButton('Copy File Path')

@@ -121,10 +121,30 @@ class SceneMaker(object):
                         path2 = osp.join(path, phile2)
                         os.remove(path2)
             self.updateUI('<b>Starting scene making</b>')
+            # switch to masterLayer
             for layer in mi.getRenderLayers(renderableOnly=False):
                 if layer.name().lower().startswith('default'):
                     pc.editRenderLayerGlobals(currentRenderLayer=layer)
                     break
+                
+            # remove existing camera(s)
+            self.updateUI('Checking and removing existing cameras')
+#             cams = pc.ls(type='camera')
+#             if len(cams) > 4:
+#                 refs = qutil.getReferences(loaded=True)
+#                 if refs:
+#                     for ref in refs:
+#                         for cam in cams:
+#                             try:
+#                                 if cam in ref.nodes():
+#                                     ref.remove()
+#                             except:
+#                                 pass
+#             if len(pc.ls(type='camera')) > 4:
+#                 for cam in pc.ls(type='camera'):
+#                     if cam.name().lower().startswith('persp') or cam.name().lower().startswith('top') or cam.name().lower().startswith('side') or cam.name().lower().startswith('front'):
+#                         continue
+#                     pc.delete(cam.firstParent())
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
             cameraRef = None
@@ -176,8 +196,13 @@ class SceneMaker(object):
                         mi.saveSceneAs(path)
                 except Exception as ex:
                     self.updateUI('Warning: '+ str(ex))
-                    self.updateUI('Saving shot to %s'%homeDir)
-                    rcUtils.saveScene(osp.basename(path))
+                    outputPath = self.parentWin.getOutputPath()
+                    if self.parentWin.isLocal() and outputPath:
+                        self.updateUI('Saving shot to %s'%outputPath)
+                        rcUtils.saveScene(osp.basename(path), path=outputPath)
+                    else:
+                        self.updateUI('Saving shot to %s'%homeDir)
+                        rcUtils.saveScene(osp.basename(path))
                 if not self.parentWin.isFilesOnly():
                     mi.toggleTextureMode(True)
                     self.collageMaker.makeShot(shot, self.renderLayers[shot])

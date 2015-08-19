@@ -15,8 +15,9 @@ homeDir = osp.join(osp.expanduser('~'), 'create_shots')
 if not osp.exists(homeDir):
     os.mkdir(homeDir)
 
-def saveScene(name):
-    path = osp.join(homeDir, name)
+def saveScene(name, path=None):
+    if not path: path = osp.join(homeDir, name)
+    else: path = osp.join(path, name)
     cmds.file(rename=path)
     cmds.file(save=True)
     
