@@ -3,6 +3,7 @@ Created on Jun 26, 2015
 
 @author: qurban.ali
 '''
+from PyQt4.QtGui import QMessageBox
 import qutil
 reload(qutil)
 import pymel.core as pc
@@ -129,6 +130,12 @@ class SceneMaker(object):
                 
             # remove existing camera(s)
             self.updateUI('Checking and removing existing cameras')
+            btn = self.parentWin.showMessage(msg='Extra cameras found in the scene',
+                                             ques='Do you want to continue?',
+                                             btns=QMessageBox.Yes|QMessageBox.No,
+                                             icon = QMessageBox.Question)
+            if btn == QMessageBox.No:
+                return
 #             cams = pc.ls(type='camera')
 #             if len(cams) > 4:
 #                 refs = qutil.getReferences(loaded=True)
