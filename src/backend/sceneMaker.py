@@ -171,6 +171,8 @@ class SceneMaker(object):
                     except IndexError:
                         self.updateUI('Warning: Could not find camera in %s'%data[-1])
                     if camera:
+                        camera = camera.firstParent()
+                        mi.removeNamespace(camera)
                         pc.lookThru(camera)
                         errors = setupSaveScene.setupScene(msg=False, cam=camera)
                         if errors:

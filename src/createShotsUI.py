@@ -23,6 +23,7 @@ import appUsageApp
 reload(appUsageApp)
 import mayaStartup
 reload(mayaStartup)
+import pymel.core as pc
 
 rcUtils = backend.rcUtils
 
@@ -131,13 +132,13 @@ class CreateShotsUI(Form, Base):
         if not self.isCollageOnly() and self.isLocal():
             if not self.getOutputPath():
                 return
-        # remove existing camera(s)
-        btn = self.showMessage(msg='Extra cameras found in the scene',
-                                         ques='Do you want to continue?',
-                                         btns=QMessageBox.Yes|QMessageBox.No,
-                                         icon = QMessageBox.Question)
-        if btn == QMessageBox.No:
-            return
+        if len(pc.ls(type='camera')) > 4:
+            btn = self.showMessage(msg='Extra cameras found in the scene',
+                                             ques='Do you want to continue?',
+                                             btns=QMessageBox.Yes|QMessageBox.No,
+                                             icon = QMessageBox.Question)
+            if btn == QMessageBox.No:
+                return
         if shotsFilePath:
             selectedShots = self.shotsBox.getSelectedItems()
             if not selectedShots:
