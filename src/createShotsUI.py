@@ -43,10 +43,7 @@ class CreateShotsUI(Form, Base):
         self.sceneMaker = None
         self.deadlineSubmitter = None
         
-        self.progressBar.hide()
         self.stopButton.hide()
-        self.hideDetailsButton.hide()
-        self.showDetailsButton.hide()
         
         self.shotsBox = cui.MultiSelectComboBox(self, msg='--Select Shots--')
         self.shotsLayout.addWidget(self.shotsBox)
@@ -209,28 +206,6 @@ class CreateShotsUI(Form, Base):
         
     def setStatus(self, msg):
         self.statusLabel.setText(msg)
-        self.processEvents()
-        
-    def showProgressBar(self):
-        self.progressBar.show()
-        self.progressBar.setValue(0)
-        self.pbSetMin(0)
-        self.statusBox.setFocus()
-        self.processEvents()
-        
-    def pbSetMax(self, val):
-        self.progressBar.setMaximum(val)
-    
-    def pbSetMin(self, val):
-        self.progressBar.setMinimum(val)
-        
-    def pbSetVal(self, val):
-        self.progressBar.setValue(val)
-        self.processEvents()
-    
-    def hideProgressBar(self):
-        self.progressBar.hide()
-        self.progressBar.setValue(0)
         self.processEvents()
     
     def clearStatusBox(self):
