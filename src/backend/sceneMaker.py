@@ -84,26 +84,22 @@ class SceneMaker(object):
         if self.envLayerSettings:
             settings = self.envLayerSettings[shot]
             if settings:
-                cl = currentLayer = pc.PyNode(pc.editRenderLayerGlobals(q=True, currentRenderLayer=True))
-                if not currentLayer.name().lower().startswith('env'):
-                    try:
-                        currentLayer = [layer for layer in mi.getRenderLayers(renderableOnly=False) if layer.name().lower().startswith('env')][0]
-                        pc.editRenderLayerGlobals(currentRenderLayer=currentLayer)
-                    except IndexError:
-                        self.updateUI('Warning: No render layer found with name: Env')
-                        return
+                cl = pc.PyNode(pc.editRenderLayerGlobals(q=True, currentRenderLayer=True))
                 node = pc.PyNode('defaultRenderGlobals')
-                if settings[0]:
-                    pc.editRenderLayerAdjustment(node.endFrame)
-                    node.endFrame.set(node.startFrame.get())
-                else:
-                    if settings[1]:
-                        if settings[2] != node.startFrame.get():
-                            pc.editRenderLayerAdjustment(node.startFrame)
-                            node.startFrame.set(settings[2])
-                        if settings[3] != node.endFrame.get():
+                for layer in mi.getRenderLayers():
+                    if layer.name().lower().startswith('env'):
+                        pc.editRenderLayerGlobals(currentRenderLayer=layer)
+                        if settings[0]:
                             pc.editRenderLayerAdjustment(node.endFrame)
-                            node.endFrame.set(settings[3])
+                            node.endFrame.set(node.startFrame.get())
+                        else:
+                            if settings[1]:
+                                if settings[2] != node.startFrame.get():
+                                    pc.editRenderLayerAdjustment(node.startFrame)
+                                    node.startFrame.set(settings[2])
+                                if settings[3] != node.endFrame.get():
+                                    pc.editRenderLayerAdjustment(node.endFrame)
+                                    node.endFrame.set(settings[3])
                 pc.editRenderLayerGlobals(currentRenderLayer=cl)
                     
                     
@@ -178,12 +174,14 @@ class SceneMaker(object):
                         if errors:
                             for error in errors:
                                 self.updateUI(error)
+                cl = pc.PyNode(pc.editRenderLayerGlobals(q=True, currentRenderLayer=True))
                 if self.renderLayers:
                     for layer, val in self.renderLayers[shot].items():
                         try:
                             pc.PyNode(layer).renderable.set(val)
                         except Exception as ex:
                             self.updateUI('Warning: Could not adjust render layer, '+ str(ex))
+                pc.editRenderLayerGlobals(currentRenderLayer=cl)
                 path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
                 self.hideObjects()
                 self.setupEnvLayer(shot)
