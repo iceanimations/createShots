@@ -30,6 +30,9 @@ rcUtils = backend.rcUtils
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
 
+# option var keys
+shotsPath_key = 'createShots_shotsPath_key'
+
 Form, Base = uic.loadUiType(osp.join(uiPath, 'main.ui'))
 class CreateShotsUI(Form, Base):
     '''
@@ -42,6 +45,7 @@ class CreateShotsUI(Form, Base):
         self.dataCollector = None
         self.sceneMaker = None
         self.deadlineSubmitter = None
+        self.lastPath = ''
         
         self.stopButton.hide()
         
@@ -56,8 +60,16 @@ class CreateShotsUI(Form, Base):
         self.browseButton1.clicked.connect(self.setOutputPath)
         self.collageOnlyButton.toggled.connect(lambda val: self.filesOnlyButton.setChecked(False))
         self.filesOnlyButton.toggled.connect(lambda val: self.collageOnlyButton.setChecked(False))
+        
+        self.setupWindow()
 
         appUsageApp.updateDatabase('createShots')
+        
+    def setupWindow(self):
+        path = qutil.getOptionVar(shotsPath_key)
+        if path:
+            self.shotsFilePathBox.setText(path)
+            self.lastPath = path
         
     def isFilesOnly(self):
         return self.filesOnlyButton.isChecked()
@@ -91,6 +103,7 @@ class CreateShotsUI(Form, Base):
     def populateShots(self, path):
         if path:
             if osp.exists(path):
+                qutil.addOptionVar(shotsPath_key, path)
                 files = os.listdir(path)
                 if files:
                     goodFiles = []
@@ -186,9 +199,10 @@ class CreateShotsUI(Form, Base):
         return path
 
     def setShotsFilePath(self):
-        filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
+        filename = QFileDialog.getExistingDirectory(self, 'Select File', self.lastPath, QFileDialog.ShowDirsOnly)
         if filename:
             self.shotsFilePathBox.setText(filename)
+            self.lastPath = filename
 
     def getShotsFilePath(self):
         path = self.shotsFilePathBox.text()
