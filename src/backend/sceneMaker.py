@@ -122,22 +122,6 @@ class SceneMaker(object):
                 if layer.name().lower().startswith('default'):
                     pc.editRenderLayerGlobals(currentRenderLayer=layer)
                     break
-#             cams = pc.ls(type='camera')
-#             if len(cams) > 4:
-#                 refs = qutil.getReferences(loaded=True)
-#                 if refs:
-#                     for ref in refs:
-#                         for cam in cams:
-#                             try:
-#                                 if cam in ref.nodes():
-#                                     ref.remove()
-#                             except:
-#                                 pass
-#             if len(pc.ls(type='camera')) > 4:
-#                 for cam in pc.ls(type='camera'):
-#                     if cam.name().lower().startswith('persp') or cam.name().lower().startswith('top') or cam.name().lower().startswith('side') or cam.name().lower().startswith('front'):
-#                         continue
-#                     pc.delete(cam.firstParent())
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
             cameraRef = None
