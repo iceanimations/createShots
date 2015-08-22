@@ -144,7 +144,7 @@ class SceneMaker(object):
                     cameraRef.remove()
                 if len(data) == 2:
                     self.updateUI('adding camera %s'%osp.basename(data[-1]))
-                    cameraRef = qutil.addRef(data[-1])
+                    cameraRef = pc.createReference(data[-1], mergeNamespacesOnClash=True, ignoreVersion=True, gl=True, options="v=0;", namespace=":")
                     camera = None
                     try:
                         camera = [node for node in cameraRef.nodes() if type(node) == pc.nt.Camera][0]
