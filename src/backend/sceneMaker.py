@@ -131,6 +131,7 @@ class SceneMaker(object):
                 self.updateUI('Creating <b>%s</b>'%shot)
                 data = self.cacheLDMappings[shot]
                 self.updateUI('applying cache to objects')
+                self.showObjects()
                 for cache, ld in data[0].items():
                     if ld:
                         self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
@@ -187,7 +188,6 @@ class SceneMaker(object):
                     mi.toggleTextureMode(True)
                     self.collageMaker.makeShot(shot, self.renderLayers[shot])
                     mi.toggleTextureMode(False)
-                self.showObjects()
                 count += 1
             self.parentWin.setStatus('')
             if not self.parentWin.isFilesOnly():
