@@ -177,7 +177,7 @@ class SceneMaker(object):
                         mi.saveSceneAs(path)
                 except Exception as ex:
                     self.updateUI('Warning: '+ str(ex))
-                    outputPath = self.parentWin.getOutputPath()
+                    outputPath = self.parentWin.getOutputPath(msg=False)
                     if self.parentWin.isLocal() and outputPath:
                         self.updateUI('Saving shot to %s'%outputPath)
                         rcUtils.saveScene(osp.basename(path), path=outputPath)

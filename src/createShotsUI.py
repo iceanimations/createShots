@@ -79,7 +79,7 @@ class CreateShotsUI(Form, Base):
         if filename:
             self.outputPathBox.setText(filename)
         
-    def getOutputPath(self):
+    def getOutputPath(self, msg=True):
         path = self.outputPathBox.text()
         if path:
             if osp.exists(path):
@@ -88,8 +88,9 @@ class CreateShotsUI(Form, Base):
                 self.showMessage(msg='Could not find the output path',
                                  icon=QMessageBox.Information)
         else:
-            self.showMessage(msg='Output path not specified',
-                             icon=QMessageBox.Information)
+            if msg:
+                self.showMessage(msg='Output path not specified',
+                                 icon=QMessageBox.Information)
         
     def isShotNameValid(self, name):
         parts = name.split('_')
