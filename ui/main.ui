@@ -69,6 +69,27 @@
      </layout>
     </item>
     <item>
+     <widget class="QLabel" name="statusLabel">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTextEdit" name="statusBox">
+        <property name="lineWrapMode">
+         <enum>QTextEdit::NoWrap</enum>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
        <widget class="QLabel" name="label_3">
@@ -94,27 +115,6 @@
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="statusLabel">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QTextEdit" name="statusBox">
-        <property name="lineWrapMode">
-         <enum>QTextEdit::NoWrap</enum>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <spacer name="horizontalSpacer">
@@ -130,32 +130,32 @@
        </spacer>
       </item>
       <item>
-       <widget class="QCheckBox" name="filesOnlyButton">
-        <property name="toolTip">
-         <string>Create maya files only, don't create collage</string>
-        </property>
-        <property name="text">
-         <string>Files Only</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="collageOnlyButton">
-        <property name="toolTip">
-         <string>Don't create maya shot files</string>
-        </property>
-        <property name="text">
-         <string>Collage Only</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="saveToLocalButton">
         <property name="toolTip">
-         <string>Save shots to C:\Users\USER.NAME\Documents\create_shots</string>
+         <string>Specify a location to save maya files</string>
         </property>
         <property name="text">
-         <string>Save to Local</string>
+         <string>Add Location</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="createFilesButton">
+        <property name="toolTip">
+         <string>Create and save maya files</string>
+        </property>
+        <property name="text">
+         <string>Create Files</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="createCollageButton">
+        <property name="toolTip">
+         <string>Take snapshots for each shot and create a collage</string>
+        </property>
+        <property name="text">
+         <string>Create Collage</string>
         </property>
        </widget>
       </item>
@@ -232,34 +232,66 @@
    </hints>
   </connection>
   <connection>
-   <sender>filesOnlyButton</sender>
+   <sender>createFilesButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>collageOnlyButton</receiver>
-   <slot>setDisabled(bool)</slot>
+   <receiver>saveToLocalButton</receiver>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>310</x>
-     <y>564</y>
+     <x>377</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
-     <x>380</x>
-     <y>568</y>
+     <x>272</x>
+     <y>567</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>collageOnlyButton</sender>
+   <sender>saveToLocalButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>filesOnlyButton</receiver>
-   <slot>setDisabled(bool)</slot>
+   <receiver>label_3</receiver>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>389</x>
+     <x>239</x>
+     <y>561</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>24</x>
+     <y>532</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveToLocalButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>outputPathBox</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>321</x>
      <y>556</y>
     </hint>
     <hint type="destinationlabel">
-     <x>306</x>
-     <y>559</y>
+     <x>341</x>
+     <y>534</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveToLocalButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>browseButton1</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>557</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>747</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>

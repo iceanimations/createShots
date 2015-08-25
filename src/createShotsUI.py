@@ -48,6 +48,10 @@ class CreateShotsUI(Form, Base):
         self.lastPath = ''
         
         self.stopButton.hide()
+        self.saveToLocalButton.hide()
+        self.label_3.hide()
+        self.outputPathBox.hide()
+        self.browseButton1.hide()
         
         self.shotsBox = cui.MultiSelectComboBox(self, msg='--Select Shots--')
         self.shotsLayout.addWidget(self.shotsBox)
@@ -58,8 +62,7 @@ class CreateShotsUI(Form, Base):
         self.stopButton.clicked.connect(self.stop)
         self.shotsFilePathBox.textChanged.connect(self.populateShots)
         self.browseButton1.clicked.connect(self.setOutputPath)
-        self.collageOnlyButton.toggled.connect(lambda val: self.filesOnlyButton.setChecked(False))
-        self.filesOnlyButton.toggled.connect(lambda val: self.collageOnlyButton.setChecked(False))
+        self.createFilesButton.toggled.connect(lambda val: self.saveToLocalButton.setChecked(False))
         
         self.setupWindow()
 
@@ -71,8 +74,8 @@ class CreateShotsUI(Form, Base):
             self.shotsFilePathBox.setText(path)
             self.lastPath = path
         
-    def isFilesOnly(self):
-        return self.filesOnlyButton.isChecked()
+    def createFiles(self):
+        return self.createFilesButton.isChecked()
         
     def setOutputPath(self):
         filename = QFileDialog.getExistingDirectory(self, 'Select File', '', QFileDialog.ShowDirsOnly)
@@ -98,8 +101,8 @@ class CreateShotsUI(Form, Base):
             if re.match('SQ\\d{3}', parts[0]) and re.match('SH\\d{3}', parts[1]):
                 return True
             
-    def isCollageOnly(self):
-        return self.collageOnlyButton.isChecked()
+    def createCollage(self):
+        return self.createCollageButton.isChecked()
         
     def populateShots(self, path):
         if path:
@@ -140,7 +143,7 @@ class CreateShotsUI(Form, Base):
         mayaStartup.FPSDialog(self).exec_()
         self.statusBox.clear()
         shotsFilePath = self.getShotsFilePath()
-        if not self.isCollageOnly() and self.isLocal():
+        if self.isLocal():
             if not self.getOutputPath():
                 return
         if len(pc.ls(type='camera')) > 4:
@@ -167,13 +170,8 @@ class CreateShotsUI(Form, Base):
             data.renderLayers = renderLayers
             data.envLayerSettings = envLayerSettings
             scene = backend.SceneMaker(data, parentWin=self).make()
-#             if not self.isCollageOnly() and self.isLocal():
-#                 errors = rcUtils.copyFiles(self.getOutputPath())
-#                 if errors:
-#                     for error in errors:
-#                         self.appendStatus('Warning: %s'%error)
             self.appendStatus('DONE...')
-            if not self.isFilesOnly():
+            if self.createCollage():
                 fileButton = QPushButton('Copy File Path')
                 folderButton = QPushButton('Copy Folder Path')
                 btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',

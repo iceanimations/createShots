@@ -24,8 +24,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>775</width>
-        <height>493</height>
+        <width>777</width>
+        <height>496</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -76,6 +76,9 @@
      </item>
      <item>
       <widget class="QCheckBox" name="toggleAllButton">
+       <property name="toolTip">
+        <string>If checked, changing LD for a cache in any shot will map the same LD for that cache in all shots</string>
+       </property>
        <property name="text">
         <string>Toggle All</string>
        </property>

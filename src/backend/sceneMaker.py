@@ -170,26 +170,27 @@ class SceneMaker(object):
                 self.hideObjects()
                 self.setupEnvLayer(shot)
                 try:
-                    if not self.parentWin.isCollageOnly():
-                        self.updateUI('Saving shot as %s'%path)
+                    if self.parentWin.createFiles():
                         if os.environ['USERNAME'] == 'qurban.ali' or self.parentWin.isLocal():
-                            raise RuntimeError, 'No warning, just bypassed the file saving in P drive'
-                        mi.saveSceneAs(path)
+                            outputPath = self.parentWin.getOutputPath(msg=False)
+                            if outputPath:
+                                self.updateUI('Saving %s to %s'%(shot, outputPath))
+                                rcUtils.saveScene(osp.basename(path), path=outputPath)
+                            else:
+                                raise RuntimeError, "Could not find a location to save files"
+                        else:
+                            self.updateUI('Saving shot as %s'%path)
+                            mi.saveSceneAs(path)
                 except Exception as ex:
                     self.updateUI('Warning: '+ str(ex))
-                    outputPath = self.parentWin.getOutputPath(msg=False)
-                    if self.parentWin.isLocal() and outputPath:
-                        self.updateUI('Saving shot to %s'%outputPath)
-                        rcUtils.saveScene(osp.basename(path), path=outputPath)
-                    else:
-                        self.updateUI('Saving shot to %s'%homeDir)
-                        rcUtils.saveScene(osp.basename(path))
-                if not self.parentWin.isFilesOnly():
+                    self.updateUI('Saving %s to %s'%(shot, homeDir))
+                    rcUtils.saveScene(osp.basename(path))
+                if self.parentWin.createCollage():
                     mi.toggleTextureMode(True)
                     self.collageMaker.makeShot(shot, self.renderLayers[shot])
                     mi.toggleTextureMode(False)
                 count += 1
             self.parentWin.setStatus('')
-            if not self.parentWin.isFilesOnly():
+            if self.parentWin.createCollage():
                 self.collage = self.collageMaker.make()
         return self
