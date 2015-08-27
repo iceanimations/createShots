@@ -178,6 +178,11 @@ class Item(Form2, Base2):
                       'background-repeat: no-repeat;\n'+
                       'background-position: center right')
         
+        self.label_3.hide()
+        self.label_4.hide()
+        self.startFrameBox.hide()
+        self.endFrameBox.hide()
+        
         self.startFrameBox.setValue(envStart)
         self.endFrameBox.setValue(envEnd)
 
@@ -185,6 +190,7 @@ class Item(Form2, Base2):
                                                          'ic_collapse.png').replace('\\', '/'))
         self.layersBox = cui.MultiSelectComboBox(self, '--Select Layers--')
         self.renderLayerLayout.addWidget(self.layersBox)
+        self.singleFrameButton.toggled.connect(lambda: self.overrideButton.setChecked(False))
         
         self.collapse()
         self.titleFrame.mouseReleaseEvent = self.collapse
