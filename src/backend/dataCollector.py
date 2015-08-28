@@ -3,7 +3,7 @@ Created on Jun 26, 2015
 
 @author: qurban.ali
 '''
-from PyQt4.QtGui import QRadioButton
+from PyQt4.QtGui import QRadioButton, QMessageBox
 import maya.cmds as cmds
 import pymel.core as pc
 import qutil
@@ -65,6 +65,10 @@ class DataCollector(object):
             data = qutil.getCSVFileData(csvPath)
             if data:
                 self.csvData = data
+                if self.csvData:
+                    if len(self.csvData[0]) != 2:
+                        self.parentWin.showMessage(msg='CSV file does not contain 2 columns (Rig -> LD)',
+                                                   icon=QMessageBox.Warning)
             else:
                 self.updateUI('Warning: Could not read data from the CSV file')
         else:
@@ -188,9 +192,12 @@ class DataCollector(object):
     def getLDFromRig(self, rigPath):
         ldPath = ''
         if rigPath and osp.exists(rigPath):
-            for rig, ld in self.csvData:
-                if iutil.paths_equal(rig, rigPath):
-                    return ld
+            try:
+                for rig, ld in self.csvData:
+                    if iutil.paths_equal(rig, rigPath):
+                        return ld
+            except ValueError:
+                pass
         else:
             self.updateUI('Warning: Rig <b>%s</b> did not found'%rigPath)
         return ldPath
