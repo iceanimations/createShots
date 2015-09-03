@@ -24,14 +24,28 @@ reload(appUsageApp)
 import mayaStartup
 reload(mayaStartup)
 import pymel.core as pc
+from collections import OrderedDict
+import sys
 
 rcUtils = backend.rcUtils
+
+renderShotsBackend = osp.join(qutil.dirname(__file__, 3), 'renderShots', 'src', 'backend')
+sys.path.insert(0, renderShotsBackend)
+
+compositingDir = osp.join(osp.expanduser('~'), 'compositing')
+if not osp.exists(compositingDir):
+    os.mkdir(compositingDir)
+    
+nukePath = r"C:\Program Files\Nuke8.0v5\python.exe"
+if not osp.exists(nukePath):
+    nukePath = r"C:\Program Files\Nuke9.0v4\python.exe"
 
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
 
 # option var keys
 shotsPath_key = 'createShots_shotsPath_key'
+resolution_key = 'createShts_resolution_key'
 
 Form, Base = uic.loadUiType(osp.join(uiPath, 'main.ui'))
 class CreateShotsUI(Form, Base):
@@ -52,9 +66,18 @@ class CreateShotsUI(Form, Base):
         self.label_3.hide()
         self.outputPathBox.hide()
         self.browseButton1.hide()
+        self.renderButton.hide()
+        self.resolutionBox.hide()
         
         self.shotsBox = cui.MultiSelectComboBox(self, msg='--Select Shots--')
         self.shotsLayout.addWidget(self.shotsBox)
+        
+        self.resolutions = OrderedDict()
+        self.resolutions['320x240'] = [320, 240, 1.333]
+        self.resolutions['640x480'] = [640, 480, 1.333]
+        self.resolutions['960x540'] = [960, 540, 1.777]
+        self.resolutions['1280x720'] = [1280, 720, 1.777]
+        self.resolutions['1920x1080'] = [1920, 1080, 1.777]
         
         self.startButton.clicked.connect(self.start)
         self.browseButton2.clicked.connect(self.setShotsFilePath)
@@ -63,12 +86,29 @@ class CreateShotsUI(Form, Base):
         self.shotsFilePathBox.textChanged.connect(self.populateShots)
         self.browseButton1.clicked.connect(self.setOutputPath)
         self.createFilesButton.toggled.connect(lambda val: self.saveToLocalButton.setChecked(False))
+        self.resolutionBox.activated.connect(self.resolutionBoxActivated)
         
         self.setupWindow()
 
         appUsageApp.updateDatabase('createShots')
         
+    def resolutionBoxActivated(self):
+        qutil.addOptionVar(resolution_key, self.resolutionBox.currentText())
+        
+    def getResolution(self):
+        return self.resolutions[self.resolutionBox.currentText()]
+        
     def setupWindow(self):
+        # setup the resolution box
+        self.resolutionBox.addItems(self.resolutions.keys())
+        val = qutil.getOptionVar(resolution_key)
+        if val:
+            for i in range(self.resolutionBox.count()):
+                text = self.resolutionBox.itemText(i)
+                if text == val:
+                    self.resolutionBox.setCurrentIndex(i)
+                    break
+        # setup the shots path
         path = qutil.getOptionVar(shotsPath_key)
         if path:
             self.shotsFilePathBox.setText(path)
@@ -94,6 +134,9 @@ class CreateShotsUI(Form, Base):
             if msg:
                 self.showMessage(msg='Output path not specified',
                                  icon=QMessageBox.Information)
+    
+    def isRender(self):
+        return self.renderButton.isChecked()
         
     def isShotNameValid(self, name):
         parts = name.split('_')
@@ -140,6 +183,11 @@ class CreateShotsUI(Form, Base):
         return self.saveToLocalButton.isChecked()
 
     def start(self):
+        if self.isRender():
+            if not osp.exists(nukePath):
+                self.showMessage(msg='It seems like Nuke is not installed on this system, comps will not be created',
+                                 icon=QMessageBox.Warning)
+                return
         mayaStartup.FPSDialog(self).exec_()
         self.statusBox.clear()
         shotsFilePath = self.getShotsFilePath()
@@ -170,20 +218,59 @@ class CreateShotsUI(Form, Base):
             data.renderLayers = renderLayers
             data.envLayerSettings = envLayerSettings
             scene = backend.SceneMaker(data, parentWin=self).make()
+            if self.isRender():
+                scene.collage = self.createCollageFromRenders()
             self.appendStatus('DONE...')
             if self.createCollage():
-                fileButton = QPushButton('Copy File Path')
-                folderButton = QPushButton('Copy Folder Path')
-                btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',
-                                       btns=QMessageBox.Ok,
-                                       customButtons=[fileButton, folderButton],
-                                       icon=QMessageBox.Information)
-                if btn == fileButton:
-                    qApp.clipboard().setText(scene.collage)
-                elif btn == folderButton:
-                    qApp.clipboard().setText(osp.dirname(scene.collage))
-                else:
-                    pass
+                if scene.collage:
+                    fileButton = QPushButton('Copy File Path')
+                    folderButton = QPushButton('Copy Folder Path')
+                    btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',
+                                           btns=QMessageBox.Ok,
+                                           customButtons=[fileButton, folderButton],
+                                           icon=QMessageBox.Information)
+                    if btn == fileButton:
+                        qApp.clipboard().setText(scene.collage)
+                    elif btn == folderButton:
+                        qApp.clipboard().setText(osp.dirname(scene.collage))
+                    else:
+                        pass
+                
+    def createCollageFromRenders(self):
+        compositingFile = osp.join(renderShotsBackend, 'compositing.py')
+        import collageMaker
+        reload(collageMaker)
+        import subprocess
+        renderDirPath = osp.join(rcUtils.homeDir, 'renders')
+        renderDirs = os.listdir(renderDirPath)
+        flag = False
+        if renderDirs:
+            for renderDir in renderDirs:
+                path = osp.join(renderDirPath, renderDir)
+                if not osp.isdir(path):
+                    continue
+                layerDirs = os.listdir(path)
+                if layerDirs:
+                    if len(layerDirs) > 1 or not layerDirs[0].lower().startswith('master'):
+                        flag = True
+            if flag:
+                with open(osp.join(compositingDir, 'info.txt'), 'w') as f:
+                    f.write(str([renderDirPath] + renderDirs))
+                self.appendStatus('<b>Creating and rendering comps</b>')
+                os.chdir(osp.dirname(nukePath))
+                subprocess.call('python %s'%compositingFile, shell=True)
+                collageMaker.collageDir = osp.join(rcUtils.homeDir, 'collage')
+                if not osp.exists(collageMaker.collageDir):
+                    os.mkdir(collageMaker.collageDir)
+                collageMaker.compRenderDir = osp.join(renderDirPath, 'comps', 'renders')
+                shotLen = len(renderDirs)
+                cm = collageMaker.CollageMaker()
+                for i, renderDir in enumerate(renderDirs):
+                    self.appendStatus('Creating collage for %s (%s of %s)'%(renderDir, i+1, shotLen))
+                    cm.makeShot(renderDir)
+                collagePath = cm.make()
+                if collagePath and osp.exists(collagePath):
+                    return collagePath
         
     def setCSVFilePath(self):
         filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.csv')

@@ -16,6 +16,14 @@ reload(rcUtils)
 import os
 import collageMaker
 reload(collageMaker)
+import sys
+import shutil
+
+renderShotsBackend = osp.join(qutil.dirname(__file__, 4), 'renderShots', 'src', 'backend')
+sys.path.insert(0, renderShotsBackend)
+
+import rendering
+reload(rendering)
 
 
 homeDir = rcUtils.homeDir
@@ -115,7 +123,10 @@ class SceneMaker(object):
                         continue
                     for phile2 in os.listdir(path):
                         path2 = osp.join(path, phile2)
-                        os.remove(path2)
+                        try:
+                            os.remove(path2)
+                        except:
+                            shutil.rmtree(path2)
             self.updateUI('<b>Starting scene making</b>')
             # switch to masterLayer
             for layer in mi.getRenderLayers(renderableOnly=False):
@@ -187,10 +198,17 @@ class SceneMaker(object):
                     rcUtils.saveScene(osp.basename(path))
                 if self.parentWin.createCollage():
                     mi.toggleTextureMode(True)
-                    self.collageMaker.makeShot(shot, self.renderLayers[shot])
+                    if self.parentWin.isRender():
+                        self.parentWin.appendStatus('Rendering scene')
+                        rendering.homeDir = osp.join(homeDir, 'renders')
+                        if not osp.exists(rendering.homeDir):
+                            os.mkdir(rendering.homeDir)
+                        rendering.configureScene(self.parentWin, renderScene=True, resolution=self.parentWin.getResolution(), shot=shot)
+                    else:
+                        self.collageMaker.makeShot(shot, self.renderLayers[shot])
                     mi.toggleTextureMode(False)
                 count += 1
             self.parentWin.setStatus('')
-            if self.parentWin.createCollage():
+            if self.parentWin.createCollage() or not self.parentWin.isRender():
                 self.collage = self.collageMaker.make()
         return self

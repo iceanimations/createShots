@@ -53,7 +53,7 @@ class CollageMaker(object):
             return path
             
             
-    def makeShot(self, shot, renderLayers):
+    def makeShot(self, shot, renderLayers, render=False):
         self.parentWin.processEvents()
         self.updateUI('Taking snapshot %s'%shot)
         s1, res = self.snapshot()
@@ -75,13 +75,13 @@ class CollageMaker(object):
                 if val:
                     subprocess.call("R:\\Pipe_Repo\\Users\\Qurban\\applications\\ImageMagick\\convert.exe %s -draw \"text 20,%s %s\" %s"%(path, y, layer, path), shell=True)
                     y += 20
-            
+        
     def snapshot(self):
         try:
             node = pc.PyNode('defaultResolution')
         except:
             node = None
         if node:
-            width = node.width.get()/4; height = node.height.get()/4
+            width = node.width.get(); height = node.height.get()
             return imaya.snapshot([width, height]), [width, height]
         return imaya.snapshot(), [256, 256]

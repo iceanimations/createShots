@@ -140,6 +140,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QComboBox" name="resolutionBox"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="renderButton">
+        <property name="toolTip">
+         <string>Create collage using renders</string>
+        </property>
+        <property name="text">
+         <string>Renders</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="createFilesButton">
         <property name="toolTip">
          <string>Create and save maya files</string>
@@ -242,8 +255,8 @@
      <y>563</y>
     </hint>
     <hint type="destinationlabel">
-     <x>272</x>
-     <y>567</y>
+     <x>182</x>
+     <y>571</y>
     </hint>
    </hints>
   </connection>
@@ -254,7 +267,7 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
+     <x>164</x>
      <y>561</y>
     </hint>
     <hint type="destinationlabel">
@@ -270,8 +283,8 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>321</x>
-     <y>556</y>
+     <x>182</x>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -286,12 +299,44 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
+     <x>170</x>
      <y>557</y>
     </hint>
     <hint type="destinationlabel">
      <x>747</x>
      <y>526</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>createCollageButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>renderButton</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>472</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>289</x>
+     <y>565</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>renderButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>resolutionBox</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>560</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>570</y>
     </hint>
    </hints>
   </connection>
