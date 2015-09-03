@@ -4,7 +4,7 @@ Created on Jun 26, 2015
 @author: qurban.ali
 '''
 from uiContainer import uic
-from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, qApp
+from PyQt4.QtGui import QMessageBox, QFileDialog, QPushButton, QCheckBox, qApp
 import os.path as osp
 import qtify_maya_window as qtfy
 import msgBox
@@ -18,7 +18,6 @@ import cui
 reload(cui)
 import mappingUI as mUI
 reload(mUI)
-import pprint
 import appUsageApp
 reload(appUsageApp)
 import mayaStartup
@@ -26,6 +25,8 @@ reload(mayaStartup)
 import pymel.core as pc
 from collections import OrderedDict
 import sys
+import imaya
+reload(imaya)
 
 rcUtils = backend.rcUtils
 
@@ -188,6 +189,34 @@ class CreateShotsUI(Form, Base):
                 self.showMessage(msg='It seems like Nuke is not installed on this system, comps will not be created',
                                  icon=QMessageBox.Warning)
                 return
+        geoSets = rcUtils.getGeoSets()
+        if geoSets:
+            geoLen = len(geoSets)
+            if geoLen > 1:
+                s = 's'
+                ss = 'them'
+            else:
+                s = ''
+                ss = 'it'
+            
+            btn = self.showMessage(msg='%s Geometry Set%s found in the scene'%(geoLen, s),
+                                   ques='Do you want to combine and add %s to characters group?'%ss,
+                                   icon=QMessageBox.Question,
+                                   btns=QMessageBox.Yes|QMessageBox.No)
+            if btn == QMessageBox.Yes:
+                sb = cui.SelectionBox(self, [QCheckBox(s.name(), self) for s in geoSets], msg='Select sets')
+                if not sb.exec_():
+                    return
+                geoSets = [pc.PyNode(s) for s in sb.getSelectedItems()]
+                meshes = []
+                for s in geoSets:
+                    mesh = imaya.getCombinedMeshFromSet(s)
+                    if not mesh:
+                        self.appendStatus('Warning: Could not combine %s'%s)
+                        continue
+                    meshes.append(mesh)
+                if meshes:
+                    rcUtils.addMeshToCharacters(meshes)
         mayaStartup.FPSDialog(self).exec_()
         self.statusBox.clear()
         shotsFilePath = self.getShotsFilePath()
