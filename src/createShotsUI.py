@@ -188,93 +188,96 @@ class CreateShotsUI(Form, Base):
         return self.saveToLocalButton.isChecked()
 
     def start(self):
-        if self.isRender():
-            if not osp.exists(nukePath):
-                self.showMessage(msg='It seems like Nuke is not installed on this system, comps will not be created',
-                                 icon=QMessageBox.Warning)
-                return
-        geoSets = rcUtils.getGeoSets()
-        if geoSets:
-            geoLen = len(geoSets)
-            if geoLen > 1:
-                s = 's'
-                ss = 'them'
-            else:
-                s = ''
-                ss = 'it'
-            
-            btn = self.showMessage(msg='%s Geometry Set%s found in the scene'%(geoLen, s),
-                                   ques='Do you want to combine and add %s to characters group?'%ss,
-                                   icon=QMessageBox.Question,
-                                   btns=QMessageBox.Yes|QMessageBox.No)
-            if btn == QMessageBox.Yes:
-                sb = cui.SelectionBox(self, [QCheckBox(s.name(), self) for s in geoSets], msg='Select sets')
-                if not sb.exec_():
-                    return
-                geoSets = [pc.PyNode(s) for s in sb.getSelectedItems()]
-                meshes = []
-                for s in geoSets:
-                    mesh = imaya.getCombinedMeshFromSet(s)
-                    if not mesh:
-                        self.appendStatus('Warning: Could not combine %s'%s)
-                        continue
-                    meshes.append(mesh)
-                if meshes:
-                    rcUtils.addMeshToCharacters(meshes)
-        mayaStartup.FPSDialog(self).exec_()
-        self.statusBox.clear()
-        shotsFilePath = self.getShotsFilePath()
-        if self.isLocal():
-            if not self.getOutputPath():
-                return
-        for cam in pc.ls(type='camera'):
-            if cam.name() not in ['leftShape', 'rightShape', 'frontShape', 'backShape', 'topShape', 'bottomShape', 'perspShape', 'sideShape']:
-                btn = self.showMessage(msg='Extra cameras found in the scene',
-                                                 ques='Do you want to continue?',
-                                                 btns=QMessageBox.Yes|QMessageBox.No,
-                                                 icon = QMessageBox.Question)
-                if btn == QMessageBox.No:
-                    return
-                break
-        if shotsFilePath:
-            selectedShots = self.shotsBox.getSelectedItems()
-            if not selectedShots:
-                selectedShots = self.shotsBox.getItems()
-            data = backend.DataCollector(shotsFilePath, self.getCSVFilePath(), selectedShots, parentWin=self).collect()
-            mappingUI = mUI.MappingUI(self, data).populate()
-            if mappingUI.exec_():
-                mappings = mappingUI.getMappings()
-                renderLayers = mappingUI.getRenderLayers()
-                envLayerSettings = mappingUI.getEnvLayerSettings()
-            else:
-                return
-            for key, value in mappings.items():
-                data.cacheLDMappings[key][0] = value
-            data.renderLayers = renderLayers
-            data.envLayerSettings = envLayerSettings
-            scene = backend.SceneMaker(data, parentWin=self).make()
+        try:
             if self.isRender():
-                scene.collage = self.createCollageFromRenders()
-            self.appendStatus('DONE...')
-            if self.createCollage():
-                if scene.collage:
-                    ep = re.search('EP\d+', self.getShotsFilePath()).group()
-                    sq = re.search('SQ\d+', self.getShotsFilePath()).group()
-                    name = '_'.join([ep, sq, 'collage']) + osp.splitext(scene.collage)[-1]
-                    name = osp.join(osp.dirname(scene.collage), name).replace('\\', '/')
-                    os.rename(scene.collage, name)
-                    fileButton = QPushButton('Copy File Path')
-                    folderButton = QPushButton('Copy Folder Path')
-                    btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%name + name +'</a>',
-                                           btns=QMessageBox.Ok,
-                                           customButtons=[fileButton, folderButton],
-                                           icon=QMessageBox.Information)
-                    if btn == fileButton:
-                        qApp.clipboard().setText(scene.collage)
-                    elif btn == folderButton:
-                        qApp.clipboard().setText(osp.dirname(scene.collage))
-                    else:
-                        pass
+                if not osp.exists(nukePath):
+                    self.showMessage(msg='It seems like Nuke is not installed on this system, comps will not be created',
+                                     icon=QMessageBox.Warning)
+                    return
+            geoSets = rcUtils.getGeoSets()
+            if geoSets:
+                geoLen = len(geoSets)
+                if geoLen > 1:
+                    s = 's'
+                    ss = 'them'
+                else:
+                    s = ''
+                    ss = 'it'
+                
+                btn = self.showMessage(msg='%s Geometry Set%s found in the scene'%(geoLen, s),
+                                       ques='Do you want to combine and add %s to characters group?'%ss,
+                                       icon=QMessageBox.Question,
+                                       btns=QMessageBox.Yes|QMessageBox.No)
+                if btn == QMessageBox.Yes:
+                    sb = cui.SelectionBox(self, [QCheckBox(s.name(), self) for s in geoSets], msg='Select sets')
+                    if not sb.exec_():
+                        return
+                    geoSets = [pc.PyNode(s) for s in sb.getSelectedItems()]
+                    meshes = []
+                    for s in geoSets:
+                        mesh = imaya.getCombinedMeshFromSet(s)
+                        if not mesh:
+                            self.appendStatus('Warning: Could not combine %s'%s)
+                            continue
+                        meshes.append(mesh)
+                    if meshes:
+                        rcUtils.addMeshToCharacters(meshes)
+            mayaStartup.FPSDialog(self).exec_()
+            self.statusBox.clear()
+            shotsFilePath = self.getShotsFilePath()
+            if self.isLocal():
+                if not self.getOutputPath():
+                    return
+            for cam in pc.ls(type='camera'):
+                if cam.name() not in ['leftShape', 'rightShape', 'frontShape', 'backShape', 'topShape', 'bottomShape', 'perspShape', 'sideShape']:
+                    btn = self.showMessage(msg='Extra cameras found in the scene',
+                                                     ques='Do you want to continue?',
+                                                     btns=QMessageBox.Yes|QMessageBox.No,
+                                                     icon = QMessageBox.Question)
+                    if btn == QMessageBox.No:
+                        return
+                    break
+            if shotsFilePath:
+                selectedShots = self.shotsBox.getSelectedItems()
+                if not selectedShots:
+                    selectedShots = self.shotsBox.getItems()
+                data = backend.DataCollector(shotsFilePath, self.getCSVFilePath(), selectedShots, parentWin=self).collect()
+                mappingUI = mUI.MappingUI(self, data).populate()
+                if mappingUI.exec_():
+                    mappings = mappingUI.getMappings()
+                    renderLayers = mappingUI.getRenderLayers()
+                    envLayerSettings = mappingUI.getEnvLayerSettings()
+                else:
+                    return
+                for key, value in mappings.items():
+                    data.cacheLDMappings[key][0] = value
+                data.renderLayers = renderLayers
+                data.envLayerSettings = envLayerSettings
+                scene = backend.SceneMaker(data, parentWin=self).make()
+                if self.isRender():
+                    scene.collage = self.createCollageFromRenders()
+                self.appendStatus('DONE...')
+                if self.createCollage():
+                    if scene.collage:
+                        ep = re.search('EP\d+', self.getShotsFilePath()).group()
+                        sq = re.search('SQ\d+', self.getShotsFilePath()).group()
+                        name = '_'.join([ep, sq, 'collage']) + osp.splitext(scene.collage)[-1]
+                        name = osp.join(osp.dirname(scene.collage), name).replace('\\', '/')
+                        os.rename(scene.collage, name)
+                        fileButton = QPushButton('Copy File Path')
+                        folderButton = QPushButton('Copy Folder Path')
+                        btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%name + name +'</a>',
+                                               btns=QMessageBox.Ok,
+                                               customButtons=[fileButton, folderButton],
+                                               icon=QMessageBox.Information)
+                        if btn == fileButton:
+                            qApp.clipboard().setText(scene.collage)
+                        elif btn == folderButton:
+                            qApp.clipboard().setText(osp.dirname(scene.collage))
+                        else:
+                            pass
+        except Exception as ex:
+            self.showMessage(msg=str(ex), icon=QMessageBox.Critical)
                 
     def createCollageFromRenders(self):
         compositingFile = osp.join(renderShotsBackend, 'compositing.py')

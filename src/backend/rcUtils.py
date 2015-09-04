@@ -25,7 +25,10 @@ def addMeshToCharacters(meshes):
         pc.group(name='characters')
     
 def getGeoSets():
-    return [s for s in pc.ls(type=pc.nt.ObjectSet) if s.name().lower().endswith('_geo_set') and s.members()[0].getShapes(ni=True)]
+    try:
+        return [s for s in pc.ls(type=pc.nt.ObjectSet) if s.name().lower().endswith('_geo_set') and s.members()[0].getShapes(ni=True)]
+    except IndexError:
+        pass
 
 def saveScene(name, path=None):
     if not path: path = osp.join(homeDir, name)
