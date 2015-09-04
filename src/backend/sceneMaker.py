@@ -136,8 +136,9 @@ class SceneMaker(object):
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
             cameraRef = None
-            for shot in self.cacheLDMappings.keys():
-                self.parentWin.setStatus('Creating %s of %s'%(count, shotLen))
+            
+            for shot in sorted(self.cacheLDMappings.keys()):
+                self.parentWin.setStatus('Creating %s (%s of %s)'%(shot, count, shotLen))
                 self.clearCaches()
                 self.updateUI('Creating <b>%s</b>'%shot)
                 data = self.cacheLDMappings[shot]
