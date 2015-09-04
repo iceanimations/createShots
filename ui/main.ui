@@ -148,7 +148,7 @@
          <string>Create collage using renders</string>
         </property>
         <property name="text">
-         <string>Renders</string>
+         <string>Render</string>
         </property>
        </widget>
       </item>

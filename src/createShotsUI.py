@@ -61,7 +61,7 @@ class CreateShotsUI(Form, Base):
         self.sceneMaker = None
         self.deadlineSubmitter = None
         self.lastPath = ''
-        
+
         self.stopButton.hide()
         self.saveToLocalButton.hide()
         self.label_3.hide()
@@ -88,6 +88,7 @@ class CreateShotsUI(Form, Base):
         self.browseButton1.clicked.connect(self.setOutputPath)
         self.createFilesButton.toggled.connect(lambda val: self.saveToLocalButton.setChecked(False))
         self.resolutionBox.activated.connect(self.resolutionBoxActivated)
+        self.createCollageButton.toggled.connect(lambda: self.renderButton.setChecked(False))
         
         self.setupWindow()
 
@@ -252,9 +253,14 @@ class CreateShotsUI(Form, Base):
             self.appendStatus('DONE...')
             if self.createCollage():
                 if scene.collage:
+                    ep = re.search('EP\d+', self.getShotsFilePath()).group()
+                    sq = re.search('SQ\d+', self.getShotsFilePath()).group()
+                    name = '_'.join([ep, sq, 'collage']) + osp.splitext(scene.collage)[-1]
+                    name = osp.join(osp.dirname(scene.collage), name).replace('\\', '/')
+                    os.rename(scene.collage, name)
                     fileButton = QPushButton('Copy File Path')
                     folderButton = QPushButton('Copy Folder Path')
-                    btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%scene.collage.replace('\\', '/') + scene.collage +'</a>',
+                    btn = self.showMessage(msg='<a href=%s style="color: lightGreen">'%name + name +'</a>',
                                            btns=QMessageBox.Ok,
                                            customButtons=[fileButton, folderButton],
                                            icon=QMessageBox.Information)

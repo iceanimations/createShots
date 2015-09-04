@@ -197,7 +197,8 @@ class SceneMaker(object):
                     self.updateUI('Saving %s to %s'%(shot, homeDir))
                     rcUtils.saveScene(osp.basename(path))
                 if self.parentWin.createCollage():
-                    mi.toggleTextureMode(True)
+                    if not self.parentWin.isRender():
+                        mi.toggleTextureMode(True)
                     if self.parentWin.isRender():
                         self.parentWin.appendStatus('Rendering scene')
                         rendering.homeDir = osp.join(homeDir, 'renders')
@@ -206,7 +207,8 @@ class SceneMaker(object):
                         rendering.configureScene(self.parentWin, renderScene=True, resolution=self.parentWin.getResolution(), shot=shot)
                     else:
                         self.collageMaker.makeShot(shot, self.renderLayers[shot])
-                    mi.toggleTextureMode(False)
+                    if not self.parentWin.isRender():
+                        mi.toggleTextureMode(False)
                 count += 1
             self.parentWin.setStatus('')
             if self.parentWin.createCollage() or not self.parentWin.isRender():
