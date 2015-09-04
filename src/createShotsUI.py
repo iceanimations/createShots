@@ -70,7 +70,7 @@ class CreateShotsUI(Form, Base):
         self.label_3.hide()
         self.outputPathBox.hide()
         self.browseButton1.hide()
-        self.renderButton.hide()
+        self.useRendersButton.hide()
         self.resolutionBox.hide()
         
         self.shotsBox = cui.MultiSelectComboBox(self, msg='--Select Shots--')
@@ -91,7 +91,7 @@ class CreateShotsUI(Form, Base):
         self.browseButton1.clicked.connect(self.setOutputPath)
         self.createFilesButton.toggled.connect(lambda val: self.saveToLocalButton.setChecked(False))
         self.resolutionBox.activated.connect(self.resolutionBoxActivated)
-        self.createCollageButton.toggled.connect(lambda: self.renderButton.setChecked(False))
+        self.createCollageButton.toggled.connect(lambda: self.useRendersButton.setChecked(False))
         
         self.setupWindow()
 
@@ -141,7 +141,7 @@ class CreateShotsUI(Form, Base):
                                  icon=QMessageBox.Information)
     
     def isRender(self):
-        return self.renderButton.isChecked()
+        return self.useRendersButton.isChecked()
         
     def isShotNameValid(self, name):
         parts = name.split('_')
