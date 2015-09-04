@@ -124,16 +124,6 @@ class DataCollector(object):
                     self.updateUI('Found: %s'%char)
                     if type(char) == pc.nt.Transform:
                         self.meshes.append(char)
-                    elif type(char) == pc.nt.ObjectSet:
-                        try:
-                            mesh = imaya.getCombinedMeshFromSet(char)
-                        except Exception as ex:
-                            self.updateUI('Warning: Could not combine %s: %s'%(char.name(), str(ex)))
-                            continue
-                        if mesh:
-                            self.meshes.append(mesh)
-                        else:
-                            self.updateUI('Warning: No mesh found under %s'%char.name())
                     else:
                         self.updateUI('Invalid object found under characters group: %s'%char.name())
         else:

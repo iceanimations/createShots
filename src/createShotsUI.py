@@ -27,6 +27,7 @@ from collections import OrderedDict
 import sys
 import imaya
 reload(imaya)
+from pprint import pprint
 
 rcUtils = backend.rcUtils
 
@@ -301,8 +302,9 @@ class CreateShotsUI(Form, Base):
                 shotLen = len(renderDirs)
                 cm = collageMaker.CollageMaker()
                 for i, renderDir in enumerate(renderDirs):
-                    self.appendStatus('Creating collage for %s (%s of %s)'%(renderDir, i+1, shotLen))
-                    cm.makeShot(renderDir)
+                    if osp.isdir(osp.join(renderDirPath, renderDir)) and re.search('SQ\d+_SH\d+', renderDir):
+                        self.appendStatus('Creating collage for %s (%s of %s)'%(renderDir, i+1, shotLen))
+                        cm.makeShot(renderDir)
                 collagePath = cm.make()
                 if collagePath and osp.exists(collagePath):
                     return collagePath
