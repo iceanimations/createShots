@@ -40,7 +40,9 @@ if not osp.exists(compositingDir):
     
 nukePath = r"C:\Program Files\Nuke8.0v5\python.exe"
 if not osp.exists(nukePath):
-    nukePath = r"C:\Program Files\Nuke9.0v4\python.exe"
+    nukePath = r"C:\Program Files\Nuke8.0v3\python.exe"
+    if not osp.exists(nukePath):
+        nukePath = r"C:\Program Files\Nuke9.0v4\python.exe"
 
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
@@ -225,13 +227,15 @@ class CreateShotsUI(Form, Base):
         if self.isLocal():
             if not self.getOutputPath():
                 return
-        if len(pc.ls(type='camera')) > 4:
-            btn = self.showMessage(msg='Extra cameras found in the scene',
-                                             ques='Do you want to continue?',
-                                             btns=QMessageBox.Yes|QMessageBox.No,
-                                             icon = QMessageBox.Question)
-            if btn == QMessageBox.No:
-                return
+        for cam in pc.ls(type='camera'):
+            if cam.name() not in ['leftShape', 'rightShape', 'frontShape', 'backShape', 'topShape', 'bottomShape', 'perspShape', 'sideShape']:
+                btn = self.showMessage(msg='Extra cameras found in the scene',
+                                                 ques='Do you want to continue?',
+                                                 btns=QMessageBox.Yes|QMessageBox.No,
+                                                 icon = QMessageBox.Question)
+                if btn == QMessageBox.No:
+                    return
+                break
         if shotsFilePath:
             selectedShots = self.shotsBox.getSelectedItems()
             if not selectedShots:
