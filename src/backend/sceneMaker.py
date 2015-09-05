@@ -206,6 +206,7 @@ class SceneMaker(object):
                         if not osp.exists(rendering.homeDir):
                             os.mkdir(rendering.homeDir)
                         rendering.configureScene(self.parentWin, renderScene=True, resolution=self.parentWin.getResolution(), shot=shot)
+                        pc.undo()
                     else:
                         self.collageMaker.makeShot(shot, self.renderLayers[shot])
                     if not self.parentWin.isRender():

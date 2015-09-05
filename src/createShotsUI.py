@@ -90,8 +90,11 @@ class CreateShotsUI(Form, Base):
         self.shotsFilePathBox.textChanged.connect(self.populateShots)
         self.browseButton1.clicked.connect(self.setOutputPath)
         self.createFilesButton.toggled.connect(lambda val: self.saveToLocalButton.setChecked(False))
+        self.createFilesButton.toggled.connect(lambda val: self.useRendersButton.setChecked(False))
+        self.useRendersButton.toggled.connect(lambda val: self.createFilesButton.setChecked(False))
         self.resolutionBox.activated.connect(self.resolutionBoxActivated)
         self.createCollageButton.toggled.connect(lambda: self.useRendersButton.setChecked(False))
+        
         
         self.setupWindow()
 
@@ -229,7 +232,7 @@ class CreateShotsUI(Form, Base):
                 if not self.getOutputPath():
                     return
             for cam in pc.ls(type='camera'):
-                if cam.name() not in ['leftShape', 'rightShape', 'frontShape', 'backShape', 'topShape', 'bottomShape', 'perspShape', 'sideShape']:
+                if qutil.getNiceName(cam.name()) not in ['leftShape', 'rightShape', 'frontShape', 'backShape', 'topShape', 'bottomShape', 'perspShape', 'sideShape']:
                     btn = self.showMessage(msg='Extra cameras found in the scene',
                                                      ques='Do you want to continue?',
                                                      btns=QMessageBox.Yes|QMessageBox.No,
