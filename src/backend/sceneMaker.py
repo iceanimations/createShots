@@ -18,6 +18,8 @@ import collageMaker
 reload(collageMaker)
 import sys
 import shutil
+from loader.command.python import RedshiftAOVTools
+from pprint import pprint
 
 renderShotsBackend = osp.join(qutil.dirname(__file__, 4), 'renderShots', 'src', 'backend')
 sys.path.insert(0, renderShotsBackend)
@@ -48,6 +50,8 @@ class SceneMaker(object):
         self.collageMaker = collageMaker.CollageMaker(self.parentWin)
         self.collage = None
         self.usedObjects = []
+        self.resolution = [] # to collect resolution and aspect ratio in render settings
+        self.frameRange = {} # to collect frame range and step in render settings
         
         self.setAllObjects()
     
@@ -110,7 +114,37 @@ class SceneMaker(object):
                                     node.endFrame.set(settings[3])
                 pc.editRenderLayerGlobals(currentRenderLayer=cl)
                     
-                    
+    def collectRenderSettings(self):
+        self.frameRange.clear()
+        # frame range
+        for layer in imaya.getRenderLayers():
+            pc.editRenderLayerGlobals(currentRenderLayer=layer)
+            self.frameRange[layer.name()] = [pc.getAttr('defaultRenderGlobals.startFrame'),
+                                      pc.getAttr('defaultRenderGlobals.endFrame')]
+            
+    def collectResolution(self):
+        # resolution
+        del self.resolution[:]
+        self.resolution.append(pc.getAttr('defaultResolution.width'))
+        self.resolution.append(pc.getAttr('defaultResolution.height'))
+        self.resolution.append(pc.getAttr('defaultResolution.deviceAspectRatio'))
+    
+    def restoreRenderSettings(self):
+        node = pc.PyNode('redshiftOptions')
+        node.imageFilePrefix.set("<Camera>\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_")
+        RedshiftAOVTools.fixAOVPrefixes()
+        # resolution
+        pc.setAttr('defaultResolution.width', self.resolution[0])
+        pc.setAttr('defaultResolution.height', self.resolution[1])
+        pc.setAttr('defaultResolution.deviceAspectRatio', self.resolution[2])
+        # frame range
+#         for layer in imaya.getRenderLayers():
+#             pc.editRenderLayerGlobals(currentRenderLayer=layer)
+#             name = layer.name()
+#             pc.setAttr('defaultRenderGlobals.startFrame', self.frameRange[name][0])
+#             pc.setAttr('defaultRenderGlobals.endFrame', self.frameRange[name][1])
+#             pc.setAttr('defaultRenderGlobals.byFrameStep', 1)
+        
 
     def make(self):
         if self.cacheLDMappings:
@@ -136,7 +170,7 @@ class SceneMaker(object):
             count = 1
             shotLen = len(self.cacheLDMappings.keys())
             cameraRef = None
-            
+            self.collectResolution()
             for shot in sorted(self.cacheLDMappings.keys()):
                 self.parentWin.setStatus('Creating <b>%s</b> (%s of %s)'%(shot, count, shotLen))
                 self.clearCaches()
@@ -212,6 +246,7 @@ class SceneMaker(object):
                             self.updateUI('Rendering: %s (%s of %s)'%(layer, i+1, length))
                         for layer in layers:
                             layer.renderable.set(1)
+                        self.restoreRenderSettings()
                     else:
                         self.collageMaker.makeShot(shot, self.renderLayers[shot])
                     if not self.parentWin.isRender():
