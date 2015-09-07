@@ -195,7 +195,7 @@ class CreateShotsUI(Form, Base):
                     self.showMessage(msg='It seems like Nuke is not installed on this system, comps will not be created',
                                      icon=QMessageBox.Warning)
                     return
-            geoSets = rcUtils.getGeoSets()
+            geoSets = imaya.getGeoSets()
             if geoSets:
                 geoLen = len(geoSets)
                 if geoLen > 1:
@@ -211,18 +211,18 @@ class CreateShotsUI(Form, Base):
                                        btns=QMessageBox.Yes|QMessageBox.No)
                 if btn == QMessageBox.Yes:
                     sb = cui.SelectionBox(self, [QCheckBox(s.name(), self) for s in geoSets], msg='Select sets')
+                    sb.setCancelToolTip('Skip adding Geometry sets to characters group')
                     if not sb.exec_():
-                        return
-                    geoSets = [pc.PyNode(s) for s in sb.getSelectedItems()]
-                    meshes = []
-                    for s in geoSets:
-                        mesh = imaya.getCombinedMeshFromSet(s)
-                        if not mesh:
-                            self.appendStatus('Warning: Could not combine %s'%s)
-                            continue
-                        meshes.append(mesh)
-                    if meshes:
-                        rcUtils.addMeshToCharacters(meshes)
+                        geoSets = [pc.PyNode(s) for s in sb.getSelectedItems()]
+                        meshes = []
+                        for s in geoSets:
+                            mesh = imaya.getCombinedMeshFromSet(s)
+                            if not mesh:
+                                self.appendStatus('Warning: Could not combine %s'%s)
+                                continue
+                            meshes.append(mesh)
+                        if meshes:
+                            imaya.addMeshesToGroup(meshes, 'characters')
             mayaStartup.FPSDialog(self).exec_()
             self.statusBox.clear()
             shotsFilePath = self.getShotsFilePath()

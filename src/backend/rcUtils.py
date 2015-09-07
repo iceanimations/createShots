@@ -14,21 +14,6 @@ import shutil
 homeDir = osp.join(osp.expanduser('~'), 'create_shots')
 if not osp.exists(homeDir):
     os.mkdir(homeDir)
-    
-def addMeshToCharacters(meshes):
-    group = pc.ls('characters')
-    if group:
-        if len(group) == 1:
-            pc.parent(meshes, group)
-    else:
-        pc.select(meshes)
-        pc.group(name='characters')
-    
-def getGeoSets():
-    try:
-        return [s for s in pc.ls(type=pc.nt.ObjectSet) if s.name().lower().endswith('_geo_set') and s.members()[0].getShapes(ni=True)]
-    except IndexError:
-        pass
 
 def saveScene(name, path=None):
     if not path: path = osp.join(homeDir, name)
