@@ -146,14 +146,14 @@ class SceneMaker(object):
                 self.showObjects()
                 for cache, ld in data[0].items():
                     if ld:
-                        self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
+                        self.updateUI('Applying %s to <b>%s</b>'%(osp.basename(cache), ld.name()))
                         try:
                             self.usedObjects.append(ld)
                             imaya.applyCache(ld, cache)
                         except Exception as ex:
                             self.updateUI('Warning: Could not apply cache to %s, %s'%(ld.name(), str(ex)))
                 if cameraRef:
-                    self.updateUI('Removing camera %s'%str(cameraRef.path))
+                    self.updateUI('Removing camera %s'%str(osp.basename(cameraRef.path)))
                     cameraRef.remove()
                 if len(data) == 2:
                     self.updateUI('adding camera %s'%osp.basename(data[-1]))

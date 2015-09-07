@@ -240,6 +240,12 @@ class CreateShotsUI(Form, Base):
                     if btn == QMessageBox.No:
                         return
                     break
+            if self.isRender():
+                layers = [layer for layer in imaya.getRenderLayers() if not layer.name().lower().startswith('default')]
+                if not layers:
+                    self.showMessage(msg='No renderable layer found. If you want to render "masterLayer", copy it and name it as "Env" or "Char"',
+                                     icon=QMessageBox.Information)
+                    return
             if shotsFilePath:
                 selectedShots = self.shotsBox.getSelectedItems()
                 if not selectedShots:
