@@ -101,7 +101,7 @@
       <item>
        <widget class="QLineEdit" name="outputPathBox">
         <property name="toolTip">
-         <string>Path to save maya files</string>
+         <string>Path to save Maya files</string>
         </property>
        </widget>
       </item>
@@ -132,7 +132,7 @@
       <item>
        <widget class="QCheckBox" name="saveToLocalButton">
         <property name="toolTip">
-         <string>Specify a location to save maya files</string>
+         <string>Specify a location to save Maya files</string>
         </property>
         <property name="text">
          <string>Add Location</string>
@@ -140,12 +140,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="resolutionBox"/>
+       <widget class="QComboBox" name="resolutionBox">
+        <property name="toolTip">
+         <string>Select Resolution</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="useRendersButton">
         <property name="toolTip">
-         <string>Create collage using renders</string>
+         <string>Create Collage using renders</string>
         </property>
         <property name="text">
          <string>Use Renders</string>
@@ -155,7 +159,7 @@
       <item>
        <widget class="QCheckBox" name="createFilesButton">
         <property name="toolTip">
-         <string>Create and save maya files</string>
+         <string>Create and save Maya files</string>
         </property>
         <property name="text">
          <string>Create Files</string>
@@ -165,7 +169,7 @@
       <item>
        <widget class="QCheckBox" name="createCollageButton">
         <property name="toolTip">
-         <string>Take snapshots for each shot and create a collage</string>
+         <string>Take snapshots for each Shot and create a Collage</string>
         </property>
         <property name="text">
          <string>Create Collage</string>

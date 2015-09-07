@@ -9,8 +9,8 @@ import pymel.core as pc
 import setupSaveScene
 reload(setupSaveScene)
 import os.path as osp
-import imaya as mi
-reload(mi)
+import imaya
+reload(imaya)
 import rcUtils
 reload(rcUtils)
 import os
@@ -94,7 +94,7 @@ class SceneMaker(object):
             if settings:
                 cl = pc.PyNode(pc.editRenderLayerGlobals(q=True, currentRenderLayer=True))
                 node = pc.PyNode('defaultRenderGlobals')
-                for layer in mi.getRenderLayers():
+                for layer in imaya.getRenderLayers():
                     if layer.name().lower().startswith('env'):
                         pc.editRenderLayerGlobals(currentRenderLayer=layer)
                         if settings[0]:
@@ -129,7 +129,7 @@ class SceneMaker(object):
                             shutil.rmtree(path2)
             self.updateUI('<b>Starting scene making</b>')
             # switch to masterLayer
-            for layer in mi.getRenderLayers(renderableOnly=False):
+            for layer in imaya.getRenderLayers(renderableOnly=False):
                 if layer.name().lower().startswith('default'):
                     pc.editRenderLayerGlobals(currentRenderLayer=layer)
                     break
@@ -138,7 +138,7 @@ class SceneMaker(object):
             cameraRef = None
             
             for shot in sorted(self.cacheLDMappings.keys()):
-                self.parentWin.setStatus('Creating %s (%s of %s)'%(shot, count, shotLen))
+                self.parentWin.setStatus('Creating <b>%s</b> (%s of %s)'%(shot, count, shotLen))
                 self.clearCaches()
                 self.updateUI('Creating <b>%s</b>'%shot)
                 data = self.cacheLDMappings[shot]
@@ -149,7 +149,7 @@ class SceneMaker(object):
                         self.updateUI('Applying %s to <b>%s</b>'%(cache, ld.name()))
                         try:
                             self.usedObjects.append(ld)
-                            mi.applyCache(ld, cache)
+                            imaya.applyCache(ld, cache)
                         except Exception as ex:
                             self.updateUI('Warning: Could not apply cache to %s, %s'%(ld.name(), str(ex)))
                 if cameraRef:
@@ -192,25 +192,30 @@ class SceneMaker(object):
                                 raise RuntimeError, "Could not find a location to save files"
                         else:
                             self.updateUI('Saving shot as %s'%path)
-                            mi.saveSceneAs(path)
+                            imaya.saveSceneAs(path)
                 except Exception as ex:
                     self.updateUI('Warning: '+ str(ex))
                     self.updateUI('Saving %s to %s'%(shot, homeDir))
                     rcUtils.saveScene(osp.basename(path))
                 if self.parentWin.createCollage():
                     if not self.parentWin.isRender():
-                        mi.toggleTextureMode(True)
+                        imaya.toggleTextureMode(True)
                     if self.parentWin.isRender():
-                        self.parentWin.appendStatus('Rendering scene')
+                        self.parentWin.appendStatus('<b>Rendering %s</b>'%shot)
                         rendering.homeDir = osp.join(homeDir, 'renders')
                         if not osp.exists(rendering.homeDir):
                             os.mkdir(rendering.homeDir)
-                        rendering.configureScene(self.parentWin, renderScene=True, resolution=self.parentWin.getResolution(), shot=shot)
-                        pc.undo()
+                        rendering.configureScene(self.parentWin, resolution=self.parentWin.getResolution(), shot=shot)
+                        layers = imaya.getRenderLayers()
+                        length = len(layers)
+                        for i, layer in enumerate(imaya.batchRender()):
+                            self.updateUI('Rendering: %s (%s of %s)'%(layer, i+1, length))
+                        for layer in layers:
+                            layer.renderable.set(1)
                     else:
                         self.collageMaker.makeShot(shot, self.renderLayers[shot])
                     if not self.parentWin.isRender():
-                        mi.toggleTextureMode(False)
+                        imaya.toggleTextureMode(False)
                 count += 1
             self.parentWin.setStatus('')
             if self.parentWin.createCollage() or not self.parentWin.isRender():
