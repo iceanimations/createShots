@@ -213,47 +213,48 @@ class DataCollector(object):
                 shotPath = osp.join(self.shotsPath, shot, 'animation')
                 cachePath = osp.join(shotPath, 'cache')
                 cameraPath = osp.join(shotPath, 'camera')
+                if not osp.exists(cameraPath):
+                    self.updateUI('Warning: Camera directory not found: Skipping %s'%shotPath)
+                    continue
                 if not osp.exists(cachePath):
                     self.updateUI('Warning: Cache directory does not exist in %s'%shotPath)
-                    continue
-                if not osp.exists(cameraPath):
-                    self.updateUI('Warning: Camera directory not found in %s'%shotPath)
-                    continue
                 self.updateUI('Collecting cache files for %s'%shot)
                 cacheFiles = self.getCacheXMLFiles(cachePath)
                 if not cacheFiles:
                     self.updateUI('Warning: No cache file found in %s'%cachePath)
-                    continue
-                self.updateUI('Finding meshes for cache files in %s'%shot)
                 cacheMeshMappings = {}
-                cacheFiles = sorted(cacheFiles, key=len)
-                cacheFiles.reverse()
-                mappingsFile = osp.join(cachePath, 'mappings.txt')
-                mappings = None
-                if self.csvData:
-                    if not osp.exists(mappingsFile):
-                        self.updateUI('Warning: Mappings file does not exist in %s'%cachePath)
-                    else:
-                        with open(mappingsFile) as f:
-                            mappings = eval(f.read())
-                for cacheFile in cacheFiles:
+                if cacheFiles:
+                    self.updateUI('Finding meshes for cache files in %s'%shot)
+                
+                    cacheFiles = sorted(cacheFiles, key=len)
+                    cacheFiles.reverse()
+                    mappingsFile = osp.join(cachePath, 'mappings.txt')
+                    mappings = None
                     if self.csvData:
-                        mesh = ''
-                        if mappings:
-                            for cache, rig in mappings.items():
-                                if iutil.paths_equal(cache, osp.splitext(osp.join(cachePath, cacheFile))[0]):
-                                    mesh = self.getLDFromRig(rig)
-                                    break
-                    else:
-                        mesh = self.getMeshFromCacheName2(cacheFile, cacheMeshMappings.values())
-                        if not mesh:
-                            self.updateUI('Warning: Could not find a mesh for %s in %s'%(cacheFile, shot))
+                        if not osp.exists(mappingsFile):
+                            self.updateUI('Warning: Mappings file does not exist in %s'%cachePath)
                         else:
-                            self.updateUI('Found: %s for %s'%(mesh.name(), cacheFile))
-                    cacheMeshMappings[osp.join(cachePath, cacheFile)] = mesh
+                            with open(mappingsFile) as f:
+                                mappings = eval(f.read())
+                    for cacheFile in cacheFiles:
+                        if self.csvData:
+                            mesh = ''
+                            if mappings:
+                                for cache, rig in mappings.items():
+                                    if iutil.paths_equal(cache, osp.splitext(osp.join(cachePath, cacheFile))[0]):
+                                        mesh = self.getLDFromRig(rig)
+                                        break
+                        else:
+                            mesh = self.getMeshFromCacheName2(cacheFile, cacheMeshMappings.values())
+                            if not mesh:
+                                self.updateUI('Warning: Could not find a mesh for %s in %s'%(cacheFile, shot))
+                            else:
+                                self.updateUI('Found: %s for %s'%(mesh.name(), cacheFile))
+                        cacheMeshMappings[osp.join(cachePath, cacheFile)] = mesh
                 camera = self.getCameraFile(cameraPath)
                 if not camera:
-                    self.updateUI('Warning: Could find camera file for %s'%shot)
+                    self.updateUI('Warning: Could find camera file: Skipping %s'%shot)
+                    continue
                 self.cacheLDMappings[shot] = [cacheMeshMappings, camera]
         else:
             self.updateUI('Warning: Could not find shots in %s'%self.shotsPath)
