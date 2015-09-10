@@ -133,10 +133,13 @@ class SceneMaker(object):
         node = pc.PyNode('redshiftOptions')
         node.imageFilePrefix.set("<Camera>\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_")
         RedshiftAOVTools.fixAOVPrefixes()
+        pc.setAttr('defaultRenderGlobals.byFrameStep', 1)
+        
         # resolution
         pc.setAttr('defaultResolution.width', self.resolution[0])
         pc.setAttr('defaultResolution.height', self.resolution[1])
         pc.setAttr('defaultResolution.deviceAspectRatio', self.resolution[2])
+        
         # frame range
 #         for layer in imaya.getRenderLayers():
 #             pc.editRenderLayerGlobals(currentRenderLayer=layer)
