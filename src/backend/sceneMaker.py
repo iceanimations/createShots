@@ -132,6 +132,7 @@ class SceneMaker(object):
     def restoreRenderSettings(self):
         node = pc.PyNode('redshiftOptions')
         node.imageFilePrefix.set("<Camera>\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_")
+        pc.setAttr("defaultRenderGlobals.imageFilePrefix", "<Camera>/<RenderLayer>/<RenderLayer>_<AOV>/<RenderLayer>_<AOV>_", type="string")
         RedshiftAOVTools.fixAOVPrefixes()
         pc.setAttr('defaultRenderGlobals.byFrameStep', 1)
         
