@@ -204,7 +204,7 @@ class SceneMaker(object):
                     if camera:
                         camera = camera.firstParent()
                         pc.lookThru(camera)
-                        errors = setupSaveScene.setupScene(msg=False, cam=camera)
+                        errors = setupSaveScene.setupScene(msg=False, cam=camera, ro=True)
                         if errors:
                             for error in errors:
                                 self.updateUI(error)
