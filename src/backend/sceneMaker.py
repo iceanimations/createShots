@@ -70,26 +70,29 @@ class SceneMaker(object):
             if mesh.history(type='cacheFile'):
                 pc.select(mesh)
                 pc.mel.eval('deleteCacheFile 3 { "keep", "", "geometry" } ;')
-                
-    def hideObjects(self):
-        if self.usedObjects:
-#             for layer in mi.getRenderLayers():
-#                 pc.select(cl=True)
-#                 pc.editRenderLayerGlobals(currentRenderLayer=layer)
-            pc.select(cl=True)
+
+    def hideShowObjects(self):
+        good = []
+        bad = []
+        for layer in imaya.getRenderLayers():
+            pc.editRenderLayerGlobals(currentRenderLayer=layer)
+            del good[:]
+            del bad[:]
             for obj in self.meshes:
-                if obj not in self.usedObjects:
-                    pc.select(obj, add=True)
+                if self.isCacheApplied(obj):
+                    good.append(obj)
+                else:
+                    bad.append(obj)
+            pc.select(bad)
             pc.mel.HideSelectedObjects()
-    
-    def showObjects(self):
-        if self.usedObjects:
-#             for layer in mi.getRenderLayers():
-#                 pc.editRenderLayerGlobals(currentRenderLayer=layer)
-            pc.select(cl=True)
-            pc.select(self.meshes)
+            pc.select(good)
             pc.mel.ShowSelectedObjects()
-            del self.usedObjects[:]
+            pc.select(cl=True)
+
+    def isCacheApplied(self, obj):
+        if obj.history(type='cacheFile'):
+            return True
+        return False
             
     def setupEnvLayer(self, shot):
         self.updateUI('Checking Env layer settings for %s'%shot)
@@ -181,7 +184,6 @@ class SceneMaker(object):
                 self.updateUI('Creating <b>%s</b>'%shot)
                 data = self.cacheLDMappings[shot]
                 self.updateUI('applying cache to objects')
-                self.showObjects()
                 for cache, ld in data[0].items():
                     if ld:
                         self.updateUI('Applying %s to <b>%s</b>'%(osp.basename(cache), ld.name()))
@@ -217,7 +219,7 @@ class SceneMaker(object):
                             self.updateUI('Warning: Could not adjust render layer, '+ str(ex))
                 pc.editRenderLayerGlobals(currentRenderLayer=cl)
                 path = osp.join(self.shotsPath, shot, 'lighting', 'files', shot + qutil.getExtension())
-                self.hideObjects()
+                self.hideShowObjects()
                 self.setupEnvLayer(shot)
                 try:
                     if self.parentWin.createFiles():
