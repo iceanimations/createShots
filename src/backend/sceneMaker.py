@@ -74,7 +74,8 @@ class SceneMaker(object):
     def hideShowObjects(self):
         good = []
         bad = []
-        for layer in imaya.getRenderLayers():
+        for layer in imaya.getRenderLayers(renderableOnly=False):
+            if layer.name().lower().startswith('env'): continue
             pc.editRenderLayerGlobals(currentRenderLayer=layer)
             del good[:]
             del bad[:]
@@ -101,7 +102,7 @@ class SceneMaker(object):
             if settings:
                 cl = pc.PyNode(pc.editRenderLayerGlobals(q=True, currentRenderLayer=True))
                 node = pc.PyNode('defaultRenderGlobals')
-                for layer in imaya.getRenderLayers():
+                for layer in imaya.getRenderLayers(renderableOnly=False):
                     if layer.name().lower().startswith('env'):
                         pc.editRenderLayerGlobals(currentRenderLayer=layer)
                         if settings[0]:
