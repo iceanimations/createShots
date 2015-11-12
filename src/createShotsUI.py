@@ -229,15 +229,13 @@ class CreateShotsUI(Form, Base):
             if self.isLocal():
                 if not self.getOutputPath():
                     return
-            for cam in pc.ls(type='camera'):
-                if qutil.getNiceName(cam.name()) not in ['leftShape', 'rightShape', 'frontShape', 'backShape', 'topShape', 'bottomShape', 'perspShape', 'sideShape']:
-                    btn = self.showMessage(msg='Extra cameras found in the scene',
-                                                     ques='Do you want to continue?',
-                                                     btns=QMessageBox.Yes|QMessageBox.No,
-                                                     icon = QMessageBox.Question)
-                    if btn == QMessageBox.No:
-                        return
-                    break
+            if len([x for x in pc.ls(type='camera') if not x.orthographic.get()]) > 1:
+                btn = self.showMessage(msg='Extra cameras found in the scene',
+                                                 ques='Do you want to continue?',
+                                                 btns=QMessageBox.Yes|QMessageBox.No,
+                                                 icon = QMessageBox.Question)
+                if btn == QMessageBox.No:
+                    return
             if self.isRender():
                 layers = [layer for layer in imaya.getRenderLayers() if not layer.name().lower().startswith('default')]
                 if not layers:
@@ -266,8 +264,8 @@ class CreateShotsUI(Form, Base):
                 self.appendStatus('DONE...')
                 if self.createCollage():
                     if scene.collage:
-                        ep = re.search('EP\d+', self.getShotsFilePath()).group()
-                        sq = re.search('SQ\d+', self.getShotsFilePath()).group()
+                        ep = re.search('EP\d+', self.getShotsFilePath(), re.IGNORECASE).group()
+                        sq = re.search('SQ\d+', self.getShotsFilePath(), re.IGNORECASE).group()
                         name = '_'.join([ep, sq, 'collage']) + osp.splitext(scene.collage)[-1]
                         name = osp.join(osp.dirname(scene.collage), name).replace('\\', '/')
                         os.rename(scene.collage, name)
