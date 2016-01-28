@@ -213,6 +213,17 @@ class DataCollector(object):
                 shotPath = osp.join(self.shotsPath, shot, 'animation')
                 cachePath = osp.join(shotPath, 'cache')
                 cameraPath = osp.join(shotPath, 'camera')
+                nanoTexFilePath = ''
+                nanoTexPath = osp.join(shotPath, 'tex')
+                if not osp.exists(nanoTexPath): nanoTexPath = osp.join(cachePath, 'tex')
+                if osp.exists(nanoTexPath):
+                    files = os.listdir(nanoTexPath)
+                    if files:
+                        for phile in files:
+                            filePath = osp.join(nanoTexPath, phile)
+                            if osp.isfile(filePath):
+                                nanoTexFilePath = osp.join(nanoTexPath, filePath)
+                                break
                 if not osp.exists(cameraPath):
                     self.updateUI('Warning: Camera directory not found: Skipping %s'%shotPath)
                     continue
@@ -255,7 +266,7 @@ class DataCollector(object):
                 if not camera:
                     self.updateUI('Warning: Could find camera file: Skipping %s'%shot)
                     continue
-                self.cacheLDMappings[shot] = [cacheMeshMappings, camera]
+                self.cacheLDMappings[shot] = [cacheMeshMappings, nanoTexFilePath, camera]
         else:
             self.updateUI('Warning: Could not find shots in %s'%self.shotsPath)
         return self

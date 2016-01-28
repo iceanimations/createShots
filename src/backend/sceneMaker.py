@@ -152,7 +152,20 @@ class SceneMaker(object):
 #             pc.setAttr('defaultRenderGlobals.startFrame', self.frameRange[name][0])
 #             pc.setAttr('defaultRenderGlobals.endFrame', self.frameRange[name][1])
 #             pc.setAttr('defaultRenderGlobals.byFrameStep', 1)
-        
+
+
+    def importNanoScreen(self, path):
+        if osp.exists(path):
+            self.updateUI('Importing Nano Textures')
+            nodes = pc.ls(type='file')
+            flag = False
+            for node in nodes:
+                if node.hasAttr('nanoScreen'):
+                    node.ftn.set(path)
+                    node.useFrameExtension.set(1)
+                    flag=True
+            if not flag:
+                self.updateUI('Warning: Nano Textures found but no marked File node found in the scene')
 
     def make(self):
         if self.cacheLDMappings:
@@ -196,7 +209,8 @@ class SceneMaker(object):
                 if cameraRef:
                     self.updateUI('Removing camera %s'%str(osp.basename(cameraRef.path)))
                     cameraRef.remove()
-                if len(data) == 2:
+                if len(data) == 3:
+                    self.importNanoScreen(data[1])
                     self.updateUI('adding camera %s'%osp.basename(data[-1]))
                     cameraRef = pc.createReference(data[-1], mergeNamespacesOnClash=True, ignoreVersion=True, gl=True, options="v=0;", namespace=":")
                     camera = None
