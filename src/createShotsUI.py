@@ -293,17 +293,16 @@ class CreateShotsUI(Form, Base):
         renderDirs = os.listdir(renderDirPath)
         flag = False
         if renderDirs:
+            renderDirs = [renderDir for renderDir in renderDirs if osp.isdir(osp.join(renderDirPath, renderDir))]
             for renderDir in renderDirs:
                 path = osp.join(renderDirPath, renderDir)
-                if not osp.isdir(path):
-                    continue
                 layerDirs = os.listdir(path)
                 if layerDirs:
                     if len(layerDirs) > 1 or not layerDirs[0].lower().startswith('master'):
                         flag = True
             if flag:
                 with open(osp.join(compositingDir, 'info.txt'), 'w') as f:
-                    f.write(str([renderDirPath] + renderDirs))
+                    f.write(str([False, renderDirPath] + renderDirs))
                 self.appendStatus('<b>Creating and rendering comps</b>')
                 os.chdir(osp.dirname(nukePath))
                 subprocess.call('python %s'%compositingFile, shell=True)
