@@ -120,14 +120,21 @@ class DataCollector(object):
             if not charNode:
                 self.updateUI('Warning: Could not find character node in the scene')
             else:
-                for char in charNode.getChildren():
-                    self.updateUI('Found: %s'%char)
-                    if type(char) == pc.nt.Transform:
-                        self.meshes.append(char)
-                    else:
-                        self.updateUI('Invalid object found under characters group: %s'%char.name())
+                self.meshes.extend(self.getMeshes(charNode))
         else:
             self.updateUI('Warning: Characters node not found in the scene')
+            
+    def getMeshes(self, grp):
+        meshes = []
+        for child in grp.getChildren():
+            try:
+                if child.getShape(ni=True):
+                    meshes.append(child)
+            except AttributeError:
+                pass
+            else:
+                meshes.extend(self.getMeshes(child))
+        return meshes
     
     def matchStrings(self, s1, s2):
         s1 = s1.lower(); s2 = s2.lower()
