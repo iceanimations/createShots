@@ -6,6 +6,9 @@ Created on Jun 26, 2015
 from PyQt4.QtGui import QRadioButton, QMessageBox
 import maya.cmds as cmds
 import pymel.core as pc
+try:
+    pc.loadPlugin('redshift4maya')
+except: pass
 import qutil
 from pymel.core.general import MayaNodeError
 reload(qutil)
