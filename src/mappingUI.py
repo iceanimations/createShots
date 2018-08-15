@@ -191,6 +191,7 @@ class Item(Form2, Base2):
         self.layersBox = cui.MultiSelectComboBox(self, '--Select Layers--')
         self.renderLayerLayout.addWidget(self.layersBox)
         self.singleFrameButton.toggled.connect(lambda: self.overrideButton.setChecked(False))
+        self.singleFrameButton.setChecked(True)
         
         self.collapse()
         self.titleFrame.mouseReleaseEvent = self.collapse

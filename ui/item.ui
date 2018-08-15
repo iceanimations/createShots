@@ -129,6 +129,9 @@
           <property name="text">
            <string>Single Frame</string>
           </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
         <item>
